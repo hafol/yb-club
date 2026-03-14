@@ -105,14 +105,20 @@ function App() {
   }, []);
 
   const handleAuthUser = (session: Session) => {
-    const userRole = (session.user.user_metadata.role as any) || 'student';
+    let userRole = (session.user.user_metadata.role as any) || 'student';
+    
+    // System Admin Override for the owner
+    if (session.user.email === 'pzhumash@gmail.com') {
+      userRole = 'admin';
+    }
+
     const user: UserData = {
       id: session.user.id,
       name: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
       email: session.user.email || '',
       role: userRole,
-      grade: '10B',
-      balance: 2450,
+      grade: userRole === 'admin' ? undefined : '10B',
+      balance: userRole === 'admin' ? 0 : 2450,
       avatar: session.user.user_metadata.avatar_url || 'U'
     };
     setCurrentUser(user);
