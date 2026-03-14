@@ -9,8 +9,7 @@ import {
   Users, Award, BookOpen, TrendingUp, DollarSign, 
   Calendar, LogOut, Search, 
   Bell, ChevronRight, LayoutDashboard, Database, 
-  ShieldCheck, ArrowUpRight, ArrowDownRight,
-  TrendingUp, Award, BookOpen, DollarSign
+  ShieldCheck, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 
 import cashIcon from './assets/dashboard/cash.png';
