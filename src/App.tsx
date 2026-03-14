@@ -9,8 +9,14 @@ import {
   Users, Award, BookOpen, TrendingUp, DollarSign, 
   Calendar, LogOut, Search, 
   Bell, ChevronRight, LayoutDashboard, Database, 
-  ShieldCheck, ArrowUpRight, ArrowDownRight
+  ShieldCheck, ArrowUpRight, ArrowDownRight,
+  TrendingUp, Award, BookOpen, DollarSign
 } from 'lucide-react';
+
+import cashIcon from './assets/dashboard/cash.png';
+import profilesIcon from './assets/dashboard/profiles.png';
+import missionsIcon from './assets/dashboard/missions.png';
+import medalIcon from './assets/dashboard/medal.png';
 
 interface UserData {
   id: string;
@@ -315,74 +321,96 @@ function App() {
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="relative group overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
-            <div className="bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-8 rounded-[38px] transition-all duration-500 group-hover:translate-y-[-4px] group-hover:border-amber-400/20 group-hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.15)]">
-              <div className="flex items-center justify-between mb-8">
-                <div className="w-14 h-14 bg-amber-400/10 rounded-[22px] flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform duration-500 border border-amber-400/10">
-                  <DollarSign className="w-7 h-7" />
-                </div>
-                <div className="flex flex-col items-end">
-                  <div className="flex items-center gap-1 text-emerald-400 text-xs font-black tracking-widest bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20 uppercase">
-                    <ArrowUpRight className="w-3 h-3" />
-                  </div>
-                  <div className="text-[10px] text-zinc-500 mt-2 font-bold uppercase tracking-[2px]">{t('currentBalance')}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Capital Resources */}
+          <div className="group relative overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-10 rounded-[3rem] transition-all duration-500 hover:scale-[1.02] hover:border-amber-400/30 shadow-2xl flex flex-col justify-between min-h-[280px]">
+            <div className="flex justify-between items-start">
+              <div className="w-20 h-20 bg-amber-400/10 rounded-3xl flex items-center justify-center border border-amber-400/10 group-hover:scale-110 transition-transform duration-500">
+                <img src={cashIcon} alt="" className="w-14 h-14 object-contain" />
+              </div>
+              <div className="text-right flex flex-col items-end">
+                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[2px] mb-2">{t('currentBalance')}</div>
+                <div className="flex items-center gap-1 text-emerald-400 text-[10px] font-black tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20 uppercase">
+                  <ArrowUpRight className="w-3 h-3" /> 2.4%
                 </div>
               </div>
-              <div className="flex items-end gap-2">
-                <span className="text-zinc-600 font-bold text-2xl mb-1">YB</span>
-                <span className="text-5xl font-black text-white tabular-nums tracking-tighter group-hover:text-amber-400 transition-colors duration-500 font-mono italic underline decoration-amber-400/30 underline-offset-8">
+            </div>
+            <div>
+              <div className="flex items-end gap-3">
+                <span className="text-zinc-600 font-black text-3xl mb-1 italic">YB</span>
+                <span className="text-6xl font-black text-white tabular-nums tracking-tighter group-hover:text-amber-400 transition-colors duration-500 font-mono italic underline decoration-amber-400/30 underline-offset-8">
                   ${animatedBalance}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-8 rounded-[38px] group hover:border-emerald-400/30 transition-all duration-500 shadow-2xl">
-            <div className="flex items-center justify-between mb-8">
-              <div className="w-14 h-14 bg-emerald-400/10 rounded-[22px] flex items-center justify-center text-emerald-400 border border-emerald-400/10">
-                <TrendingUp className="w-7 h-7" />
+          {/* Academic Performance */}
+          <div className="group relative overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-10 rounded-[3rem] transition-all duration-500 hover:scale-[1.02] hover:border-emerald-400/30 shadow-2xl flex flex-col justify-between min-h-[280px]">
+            <div className="flex justify-between items-start">
+              <div className="w-20 h-20 bg-emerald-400/10 rounded-3xl flex items-center justify-center border border-emerald-400/10 group-hover:scale-110 transition-transform duration-500">
+                <img src={profilesIcon} alt="" className="w-14 h-14 object-contain" />
               </div>
-              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">{t('academicPerf')}</div>
-            </div>
-            <div className="text-5xl font-black text-white tabular-nums tracking-tighter mb-4 decoration-emerald-400/30 underline-offset-8 underline decoration-4">
-              92.4 <span className="text-xl text-zinc-600">%</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-zinc-500 font-bold uppercase">
-              <div className="w-24 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                <div className="w-[92%] h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+              <div className="text-right">
+                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[2px]">{t('academicPerf')}</div>
               </div>
-              Top 5%
+            </div>
+            <div>
+              <div className="text-6xl font-black text-white tabular-nums tracking-tighter mb-4 decoration-emerald-400/30 underline-offset-8 underline decoration-4">
+                92.4 <span className="text-2xl text-zinc-600">%</span>
+              </div>
+              <div className="flex items-center gap-4 text-[10px] text-zinc-500 font-black uppercase tracking-widest">
+                <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden border border-white/5">
+                  <div className="w-[92%] h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-1000" />
+                </div>
+                Top 5%
+              </div>
             </div>
           </div>
 
-          <div className="bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-8 rounded-[38px] group hover:border-blue-400/30 transition-all duration-500 shadow-2xl">
-            <div className="flex items-center justify-between mb-8">
-              <div className="w-14 h-14 bg-blue-400/10 rounded-[22px] flex items-center justify-center text-blue-400 border border-blue-400/10">
-                <BookOpen className="w-7 h-7" />
+          {/* Active Missions */}
+          <div className="group relative overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-10 rounded-[3rem] transition-all duration-500 hover:scale-[1.02] hover:border-blue-400/30 shadow-2xl flex flex-col justify-between min-h-[280px]">
+             <div className="flex justify-between items-start">
+              <div className="w-20 h-20 bg-blue-400/10 rounded-3xl flex items-center justify-center border border-blue-400/10 group-hover:scale-110 transition-transform duration-500">
+                <img src={missionsIcon} alt="" className="w-14 h-14 object-contain" />
               </div>
-              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">{t('activeMissions')}</div>
+              <div className="text-right">
+                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[2px]">{t('activeMissions')}</div>
+              </div>
             </div>
-            <div className="text-5xl font-black text-white tracking-tighter mb-2 italic">
-              04 <span className="text-xl text-zinc-600">/ 12</span>
+            <div>
+              <div className="text-6xl font-black text-white tracking-tighter mb-2 italic">
+                04 <span className="text-2xl text-zinc-500 italic opacity-50">/ 12</span>
+              </div>
+              <div className="text-[11px] text-blue-400 font-black uppercase tracking-[3px] mt-4 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                2 Priority Challenges
+              </div>
             </div>
-            <div className="text-[10px] text-blue-400 font-black uppercase tracking-widest mt-4">2 Priority Challenges</div>
           </div>
 
-          <div className="bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-8 rounded-[38px] group hover:border-purple-400/30 transition-all duration-500 shadow-2xl">
-            <div className="flex items-center justify-between mb-8">
-              <div className="w-14 h-14 bg-purple-400/10 rounded-[22px] flex items-center justify-center text-purple-400 border border-purple-400/10">
-                <Award className="w-7 h-7" />
+          {/* Club Status */}
+          <div className="group relative overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-10 rounded-[3rem] transition-all duration-500 hover:scale-[1.02] hover:border-purple-400/30 shadow-2xl flex flex-col justify-between min-h-[280px]">
+            <div className="flex justify-between items-start">
+              <div className="w-20 h-20 bg-purple-400/10 rounded-3xl flex items-center justify-center border border-purple-400/10 group-hover:scale-110 transition-transform duration-500">
+                <img src={medalIcon} alt="" className="w-14 h-14 object-contain" />
               </div>
-              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">{t('rank')}</div>
+              <div className="text-right flex flex-col items-end">
+                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[2px] mb-2">{t('rank')}</div>
+                <div className="text-[9px] font-black bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full uppercase tracking-widest border border-purple-500/20">
+                  Elite
+                </div>
+              </div>
             </div>
-            <div className="text-5xl font-black text-white tracking-tighter mb-2 font-serif italic drop-shadow-[0_4px_10px_rgba(192,132,252,0.3)]">
-              Diamond
+            <div>
+              <div className="text-6xl font-black text-white tracking-tighter italic drop-shadow-[0_4px_15px_rgba(192,132,252,0.4)] bg-clip-text text-transparent bg-gradient-to-br from-white via-purple-100 to-purple-400">
+                Diamond
+              </div>
+              <div className="text-[11px] text-zinc-500 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-purple-400" />
+                Certified Member
+              </div>
             </div>
-             <div className="text-[10px] text-purple-400 font-black uppercase tracking-widest mt-4 flex items-center gap-2">
-                <ShieldCheck className="w-3 h-3" /> Certified Member
-             </div>
           </div>
         </div>
 
