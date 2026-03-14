@@ -243,16 +243,16 @@ function App() {
               <button
                 key={item.id}
                 onClick={() => setCurrentPage(item.id as any)}
-                className={`w-full flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300 group
+                className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 group
                   ${isActive 
-                    ? 'bg-gradient-to-r from-amber-400/10 to-transparent text-amber-400' 
+                    ? 'bg-zinc-800/50 text-yellow-400' 
                     : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-200'}`}
               >
-                <div className={`p-2 rounded-xl transition-colors ${isActive ? 'bg-amber-400/20 shadow-lg shadow-amber-400/10' : 'group-hover:bg-white/10'}`}>
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-amber-400' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+                <div className={`p-2 rounded-lg transition-colors ${isActive ? 'bg-yellow-400/10' : 'group-hover:bg-white/5'}`}>
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-yellow-400' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
                 </div>
-                <span className="font-semibold text-sm tracking-wide">{item.label}</span>
-                {isActive && <div className="ml-auto w-1 h-6 bg-amber-400 rounded-full blur-[1px]" />}
+                <span className="font-medium text-sm tracking-wide">{item.label}</span>
+                {isActive && <div className="ml-auto w-1 h-5 bg-yellow-400 rounded-full" />}
               </button>
             );
           })}
@@ -291,54 +291,54 @@ function App() {
 
   const renderDashboard = () => {
     return (
-      <div className="p-10 space-y-10 max-w-[1600px] mx-auto animate-fade-in">
+      <div className="p-8 space-y-8 max-w-[1600px] mx-auto">
         {/* Header Section */}
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <h1 className="text-5xl font-black text-white tracking-tighter sm:text-6xl drop-shadow-2xl">
-              {t('greetings')}, <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500">{currentUser?.name.split(' ')[0]}</span>
+            <h1 className="text-5xl font-bold text-white tracking-tight">
+              {t('greetings')}, <span className="text-yellow-400">{currentUser?.name.split(' ')[0]}</span>
             </h1>
-            <p className="text-zinc-500 mt-4 text-lg font-medium tracking-wide flex items-center gap-3">
-              <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse shadow-lg shadow-amber-400/50" />
-              {t('clubTagline')} • <span className="text-amber-400/80 italic">{new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+            <p className="text-zinc-500 mt-2 text-base font-medium flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
+              {t('clubTagline')} • <span className="text-zinc-400 capitalize">{new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
             </p>
           </div>
           
           <div className="flex items-center gap-4">
              <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-amber-400 transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-yellow-400 transition-colors" />
                 <input 
                   type="text" 
                   placeholder={t('searchPlaceholder')} 
-                  className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-2xl pl-12 pr-6 py-4 w-72 focus:outline-none focus:border-amber-400/50 focus:w-80 transition-all text-sm font-medium"
+                  className="bg-zinc-900 border border-zinc-800 rounded-xl pl-12 pr-6 py-3 w-72 focus:outline-none focus:border-yellow-400/50 focus:w-80 transition-all text-sm font-medium text-white"
                 />
              </div>
-             <button className="p-4 bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-2xl text-zinc-500 hover:text-amber-400 hover:border-amber-400/30 transition-all relative">
+             <button className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-500 hover:text-yellow-400 hover:border-yellow-400/30 transition-all relative">
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-4 right-4 w-2 h-2 bg-amber-500 rounded-full ring-2 ring-zinc-950" />
+                <span className="absolute top-3 right-3 w-2 h-2 bg-yellow-400 rounded-full ring-2 ring-black" />
              </button>
           </div>
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Capital Resources */}
-          <div className="group relative overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-10 rounded-[3rem] transition-all duration-500 hover:scale-[1.02] hover:border-amber-400/30 shadow-2xl flex flex-col justify-between min-h-[280px]">
+          <div className="group relative bg-zinc-900 border border-zinc-800 p-8 rounded-3xl transition-all duration-300 hover:border-yellow-400/20 shadow-sm flex flex-col justify-between min-h-[220px]">
             <div className="flex justify-between items-start">
-              <div className="w-20 h-20 bg-amber-400/10 rounded-3xl flex items-center justify-center border border-amber-400/10 group-hover:scale-110 transition-transform duration-500">
-                <img src={cashIcon} alt="" className="w-14 h-14 object-contain" />
+              <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
+                <img src={cashIcon} alt="" className="w-10 h-10 object-contain" />
               </div>
-              <div className="text-right flex flex-col items-end">
-                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[2px] mb-2">{t('currentBalance')}</div>
-                <div className="flex items-center gap-1 text-emerald-400 text-[10px] font-black tracking-widest bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20 uppercase">
+              <div className="text-right">
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">{t('currentBalance')}</div>
+                <div className="flex items-center gap-1 text-green-400 text-[10px] font-bold mt-2 bg-green-400/5 px-2 py-1 rounded-md border border-green-400/10">
                   <ArrowUpRight className="w-3 h-3" /> 2.4%
                 </div>
               </div>
             </div>
             <div>
-              <div className="flex items-end gap-3">
-                <span className="text-zinc-600 font-black text-3xl mb-1 italic">YB</span>
-                <span className="text-6xl font-black text-white tabular-nums tracking-tighter group-hover:text-amber-400 transition-colors duration-500 font-mono italic underline decoration-amber-400/30 underline-offset-8">
+              <div className="flex items-baseline gap-2">
+                <span className="text-zinc-600 font-bold text-xl uppercase">YB</span>
+                <span className="text-5xl font-bold text-white tracking-tight tabular-nums">
                   ${animatedBalance}
                 </span>
               </div>
@@ -346,68 +346,68 @@ function App() {
           </div>
 
           {/* Academic Performance */}
-          <div className="group relative overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-10 rounded-[3rem] transition-all duration-500 hover:scale-[1.02] hover:border-emerald-400/30 shadow-2xl flex flex-col justify-between min-h-[280px]">
+          <div className="group relative bg-zinc-900 border border-zinc-800 p-8 rounded-3xl transition-all duration-300 hover:border-green-400/20 shadow-sm flex flex-col justify-between min-h-[220px]">
             <div className="flex justify-between items-start">
-              <div className="w-20 h-20 bg-emerald-400/10 rounded-3xl flex items-center justify-center border border-emerald-400/10 group-hover:scale-110 transition-transform duration-500">
-                <img src={profilesIcon} alt="" className="w-14 h-14 object-contain" />
+              <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
+                <img src={profilesIcon} alt="" className="w-10 h-10 object-contain" />
               </div>
               <div className="text-right">
-                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[2px]">{t('academicPerf')}</div>
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">{t('academicPerf')}</div>
               </div>
             </div>
             <div>
-              <div className="text-6xl font-black text-white tabular-nums tracking-tighter mb-4 decoration-emerald-400/30 underline-offset-8 underline decoration-4">
-                92.4 <span className="text-2xl text-zinc-600">%</span>
+              <div className="text-5xl font-bold text-white tracking-tight tabular-nums mb-4">
+                92.4 <span className="text-xl text-zinc-600">%</span>
               </div>
-              <div className="flex items-center gap-4 text-[10px] text-zinc-500 font-black uppercase tracking-widest">
-                <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden border border-white/5">
-                  <div className="w-[92%] h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-all duration-1000" />
+              <div className="space-y-2">
+                <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className="w-[92%] h-full bg-green-400 transition-all duration-1000" />
                 </div>
-                Top 5%
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest text-right">Top 5%</div>
               </div>
             </div>
           </div>
 
           {/* Active Missions */}
-          <div className="group relative overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-10 rounded-[3rem] transition-all duration-500 hover:scale-[1.02] hover:border-blue-400/30 shadow-2xl flex flex-col justify-between min-h-[280px]">
+          <div className="group relative bg-zinc-900 border border-zinc-800 p-8 rounded-3xl transition-all duration-300 hover:border-zinc-700 shadow-sm flex flex-col justify-between min-h-[220px]">
              <div className="flex justify-between items-start">
-              <div className="w-20 h-20 bg-blue-400/10 rounded-3xl flex items-center justify-center border border-blue-400/10 group-hover:scale-110 transition-transform duration-500">
-                <img src={missionsIcon} alt="" className="w-14 h-14 object-contain" />
+              <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
+                <img src={missionsIcon} alt="" className="w-10 h-10 object-contain" />
               </div>
               <div className="text-right">
-                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[2px]">{t('activeMissions')}</div>
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">{t('activeMissions')}</div>
               </div>
             </div>
             <div>
-              <div className="text-6xl font-black text-white tracking-tighter mb-2 italic">
-                04 <span className="text-2xl text-zinc-500 italic opacity-50">/ 12</span>
+              <div className="text-5xl font-bold text-white tracking-tight">
+                04 <span className="text-xl text-zinc-600">/ 12</span>
               </div>
-              <div className="text-[11px] text-blue-400 font-black uppercase tracking-[3px] mt-4 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              <div className="text-[10px] text-yellow-400 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
                 2 Priority Challenges
               </div>
             </div>
           </div>
 
           {/* Club Status */}
-          <div className="group relative overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 p-10 rounded-[3rem] transition-all duration-500 hover:scale-[1.02] hover:border-purple-400/30 shadow-2xl flex flex-col justify-between min-h-[280px]">
+          <div className="group relative bg-zinc-900 border border-zinc-800 p-8 rounded-3xl transition-all duration-300 hover:border-zinc-700 shadow-sm flex flex-col justify-between min-h-[220px]">
             <div className="flex justify-between items-start">
-              <div className="w-20 h-20 bg-purple-400/10 rounded-3xl flex items-center justify-center border border-purple-400/10 group-hover:scale-110 transition-transform duration-500">
-                <img src={medalIcon} alt="" className="w-14 h-14 object-contain" />
+              <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
+                <img src={medalIcon} alt="" className="w-10 h-10 object-contain" />
               </div>
               <div className="text-right flex flex-col items-end">
-                <div className="text-[10px] text-zinc-500 font-black uppercase tracking-[2px] mb-2">{t('rank')}</div>
-                <div className="text-[9px] font-black bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full uppercase tracking-widest border border-purple-500/20">
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px] mb-2">{t('rank')}</div>
+                <div className="text-[9px] font-bold bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full uppercase tracking-widest border border-zinc-700">
                   Elite
                 </div>
               </div>
             </div>
             <div>
-              <div className="text-6xl font-black text-white tracking-tighter italic drop-shadow-[0_4px_15px_rgba(192,132,252,0.4)] bg-clip-text text-transparent bg-gradient-to-br from-white via-purple-100 to-purple-400">
+              <div className="text-5xl font-bold text-white tracking-tight">
                 Diamond
               </div>
-              <div className="text-[11px] text-zinc-500 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-purple-400" />
+              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-zinc-600" />
                 Certified Member
               </div>
             </div>
@@ -415,57 +415,54 @@ function App() {
         </div>
 
         {/* Content Layout */}
-        <div className="grid grid-cols-12 gap-10">
-          <div className="col-span-12 lg:col-span-8 space-y-10">
-            {/* Missions Section */}
+        <div className="grid grid-cols-12 gap-8">
+          {/* Main Column */}
+          <div className="col-span-12 lg:col-span-8 space-y-8">
             <section>
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                  <div className="w-2 h-10 bg-gradient-to-b from-amber-400 to-orange-600 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
-                   <div>
-                    <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic">{t('availableMissions')}</h2>
-                    <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[3px] mt-1">{t('missionsDesc')}</p>
-                   </div>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-1.5 h-8 bg-yellow-400 rounded-full" />
+                  <div>
+                    <h2 className="text-2xl font-bold text-white uppercase tracking-tight">{t('availableMissions')}</h2>
+                    <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-[2px]">{t('missionsDesc')}</p>
+                  </div>
                 </div>
-                <button className="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold uppercase tracking-[2px] hover:bg-white/10 transition-all active:scale-95 text-zinc-200">
+                <button className="px-5 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] font-bold uppercase tracking-[2px] hover:border-zinc-700 transition-all text-zinc-400">
                   {t('viewStore')}
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
                 {cases.map((mission, idx) => (
-                  <div key={idx} className="bg-gradient-to-br from-zinc-900/80 to-zinc-950 border border-white/5 rounded-[32px] p-8 overflow-hidden group relative hover:border-amber-400/40 transition-all duration-700 shadow-xl">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/5 blur-[60px] -mr-16 -mt-16 group-hover:bg-amber-400/15 transition-all duration-1000" />
-                    
-                    <div className="flex justify-between items-start mb-10 relative z-10">
-                      <div className="flex flex-col gap-2">
-                        <div className="text-[9px] font-black bg-amber-400/20 text-amber-500 px-3 py-1 rounded-full w-min uppercase tracking-widest border border-amber-400/20">
-                          {t('strategic')}
+                  <div key={idx} className="bg-zinc-900/50 border border-zinc-800 rounded-[2rem] p-10 group relative transition-all duration-300 hover:border-yellow-400/20">
+                    <div className="flex justify-between items-start gap-6">
+                      <div className="flex-1 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <span className="text-[9px] font-bold bg-yellow-400/10 text-yellow-400 px-3 py-1 rounded-full uppercase tracking-widest border border-yellow-400/10">
+                            {t('strategic')}
+                          </span>
                         </div>
-                        <h3 className="text-2xl font-black text-white mt-1 group-hover:text-amber-400 transition-colors leading-tight italic">{mission.title}</h3>
+                        <h3 className="text-3xl font-bold text-white group-hover:text-yellow-400 transition-colors leading-tight">{mission.title}</h3>
+                        <p className="text-zinc-500 text-base leading-relaxed line-clamp-2 max-w-2xl">{mission.description}</p>
                       </div>
-                      <div className="text-right">
-                         <div className="text-xs text-zinc-600 font-bold uppercase tracking-widest leading-none">{t('reward')}</div>
-                         <div className="text-3xl font-mono font-black text-white mt-2 group-hover:scale-110 transition-transform origin-right">+${mission.reward}</div>
+                      <div className="text-right flex flex-col justify-between items-end min-h-[140px]">
+                        <div>
+                          <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-1">{t('reward')}</div>
+                          <div className="text-4xl font-bold text-white tabular-nums tracking-tight">+${mission.reward}</div>
+                        </div>
+                        <div className="space-y-4">
+                          <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center justify-end gap-2">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {t('deadline')}: {mission.deadline}
+                          </div>
+                          <button 
+                            className="px-8 py-3.5 bg-transparent border border-zinc-700 text-zinc-200 font-bold text-[11px] uppercase tracking-widest rounded-xl hover:border-yellow-400 hover:text-yellow-400 transition-all flex items-center gap-2"
+                            onClick={() => awardYBD(mission.reward * 0.8, mission.title)}
+                          >
+                            {t('accept')} <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-
-                    <p className="text-zinc-500 text-sm leading-relaxed mb-10 line-clamp-2 font-medium opacity-80">{mission.description}</p>
-
-                    <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/5 relative z-10">
-                      <div className="flex items-center gap-3">
-                        <Calendar className="w-4 h-4 text-zinc-600" />
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t('deadline')}: {mission.deadline}</span>
-                      </div>
-                      <button 
-                        className="group/btn relative h-12 w-44 bg-white text-black font-black text-[11px] uppercase tracking-widest rounded-2xl overflow-hidden active:scale-95 transition-all shadow-xl shadow-white/5"
-                        onClick={() => awardYBD(mission.reward * 0.8, mission.title)}
-                      >
-                         <span className="relative z-10 flex items-center justify-center gap-2">
-                          {t('accept')} <ChevronRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-                         </span>
-                         <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-500 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                      </button>
                     </div>
                   </div>
                 ))}
@@ -473,42 +470,41 @@ function App() {
             </section>
           </div>
 
-          <div className="col-span-12 lg:col-span-4 space-y-10">
-            {/* Feed Section */}
-            <section className="bg-zinc-900/30 backdrop-blur-3xl border border-white/5 rounded-[40px] p-8 h-full shadow-2xl relative overflow-hidden group">
-               <div className="absolute top-0 right-0 w-64 h-64 bg-amber-400/5 blur-[100px] -z-10 group-hover:bg-amber-400/10 transition-colors duration-1000" />
-               <div className="flex items-center justify-between mb-10">
-                  <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">{t('activityFeed')}</h2>
-                  <div className="flex gap-2">
-                    <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
-                    <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest italic">{t('live')}</span>
+          {/* Activity Column */}
+          <div className="col-span-12 lg:col-span-4 space-y-8">
+            <section className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-8 h-full shadow-sm relative overflow-hidden">
+               <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-xl font-bold text-white uppercase tracking-tight">{t('activityFeed')}</h2>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                    <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">{t('live')}</span>
                   </div>
                </div>
 
-               <div className="space-y-6">
+               <div className="space-y-1 mt-4">
                  {transactions.slice(0, 6).map((tx, idx) => (
-                   <div key={idx} className="flex gap-4 p-4 rounded-[28px] hover:bg-white/5 transition-all duration-300 group/item border border-transparent hover:border-white/5 cursor-pointer">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-500
-                        ${tx.amount > 0 ? 'bg-emerald-400/10 border-emerald-400/20 text-emerald-400 group-hover/item:rotate-12' : 'bg-red-400/10 border-red-400/20 text-red-400 group-hover/item:-rotate-12'}`}>
+                   <div key={idx} className="flex gap-4 p-4 rounded-xl hover:bg-zinc-800 transition-all duration-200 group/item cursor-pointer">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300
+                        ${tx.amount > 0 ? 'bg-zinc-800 border-zinc-700 text-green-400' : 'bg-zinc-800 border-zinc-700 text-red-400'}`}>
                         {tx.amount > 0 ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                       </div>
-                      <div className="flex-1 min-w-0 py-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-1">
-                          <h4 className="text-sm font-bold text-white truncate max-w-[150px] group-hover/item:text-amber-400 transition-colors uppercase italic">{tx.reason}</h4>
-                          <span className={`text-sm font-mono font-black ${tx.amount > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          <h4 className="text-sm font-bold text-zinc-200 truncate pr-2 group-hover/item:text-yellow-400 transition-colors uppercase">{tx.reason}</h4>
+                          <span className={`text-sm font-bold tabular-nums whitespace-nowrap ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {tx.amount > 0 ? '+' : ''}{tx.amount}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider">From {tx.createdBy}</p>
-                          <p className="text-[10px] text-zinc-700 font-mono italic">{tx.date}</p>
+                          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider pr-2 truncate">From {tx.createdBy}</p>
+                          <p className="text-[10px] text-zinc-600 font-medium shrink-0">{tx.date}</p>
                         </div>
                       </div>
                    </div>
                  ))}
                </div>
 
-               <button className="w-full mt-10 py-5 bg-white/5 border border-white/10 rounded-[28px] text-[10px] font-black text-zinc-500 uppercase tracking-[3px] hover:bg-white/10 hover:text-white transition-all">
+               <button className="w-full mt-8 py-4 bg-zinc-800 border border-zinc-700 rounded-xl text-[10px] font-bold text-zinc-400 uppercase tracking-[2px] hover:text-white hover:border-zinc-600 transition-all">
                   {t('fullAuditLog')}
                </button>
             </section>
@@ -540,40 +536,34 @@ function App() {
       );
     }
     
-    if (currentRole === 'login') {
+     if (currentRole === 'login') {
       return (
-        <div className="relative overflow-hidden bg-black">
-          <div className="absolute top-8 left-8 z-50 animate-fade-in">
+        <div className="relative overflow-hidden bg-black min-h-screen">
+          <div className="absolute top-8 left-8 z-50">
             <LanguageSwitcher />
           </div>
-          {/* Accent Glows for Login */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-amber-500/10 blur-[150px] rounded-full -z-10 animate-pulse" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-yellow-400/5 blur-[150px] rounded-full -z-10" />
           <LoginPage onLogin={handleLogin} />
         </div>
       );
     }
     
     return (
-      <div className="flex min-h-screen bg-black text-white selection:bg-amber-400 selection:text-black">
+      <div className="flex min-h-screen bg-black text-white selection:bg-yellow-400 selection:text-black font-sans">
         <Sidebar role={currentRole} />
         
-        <main className="flex-1 overflow-x-hidden relative">
-          {/* Subtle Global Glows */}
-          <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-amber-500/10 blur-[120px] rounded-full -z-10 select-none pointer-events-none" />
-          <div className="fixed bottom-0 left-[300px] w-[500px] h-[500px] bg-orange-600/5 blur-[100px] rounded-full -z-10 select-none pointer-events-none" />
-          
-          <div className="absolute top-10 right-10 z-50">
+        <main className="flex-1 overflow-x-hidden relative bg-[#050505]">
+          <div className="absolute top-8 right-8 z-50">
             <LanguageSwitcher />
           </div>
           
           <div className="relative">
             {currentPage === 'dashboard' && renderDashboard()}
-            {/* Other pages would follow the same premium aesthetic */}
             {currentPage !== 'dashboard' && (
-               <div className="p-20 text-center flex flex-col items-center justify-center animate-pulse">
-                  <Database className="w-20 h-20 text-zinc-800 mb-8" />
-                  <h2 className="text-4xl font-black text-white italic uppercase tracking-tighter opacity-50">{t('moduleUnderDev')}</h2>
-                  <button onClick={() => setCurrentPage('dashboard')} className="mt-8 text-amber-500 font-bold uppercase tracking-[4px] text-xs hover:underline decoration-2 underline-offset-8">Return to Central Hub</button>
+               <div className="p-20 text-center flex flex-col items-center justify-center min-h-[80vh]">
+                  <Database className="w-16 h-16 text-zinc-800 mb-8" />
+                  <h2 className="text-3xl font-bold text-white uppercase tracking-tight opacity-50">{t('moduleUnderDev')}</h2>
+                  <button onClick={() => setCurrentPage('dashboard')} className="mt-8 text-yellow-500 font-bold uppercase tracking-[2px] text-[10px] hover:underline underline-offset-8">Return to Central Hub</button>
                </div>
             )}
           </div>
