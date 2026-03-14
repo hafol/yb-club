@@ -6,7 +6,7 @@ import { LanguageSwitcher } from './components/ui/language-switcher';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import { 
-  Users, Calendar, LogOut, Search, 
+  Users, Calendar, LogOut, Search, BookOpen, Award, DollarSign,
   Bell, ChevronRight, LayoutDashboard, Database, 
   ShieldCheck, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
