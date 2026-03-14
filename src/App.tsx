@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import Hero from './components/ui/animated-shader-hero';
 import LoginPage from './components/ui/animated-sign-in';
@@ -6,8 +6,7 @@ import { LanguageSwitcher } from './components/ui/language-switcher';
 import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import { 
-  Users, Award, BookOpen, TrendingUp, DollarSign, 
-  Calendar, LogOut, Search, 
+  Users, Calendar, LogOut, Search, 
   Bell, ChevronRight, LayoutDashboard, Database, 
   ShieldCheck, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
