@@ -208,11 +208,13 @@ function App() {
 
     if (!error) {
       console.log('Mission created:', data);
+      alert('Mission created successfully!');
       setShowAddMissionModal(false);
       setNewMission({ title: '', description: '', reward: 0, deadline: '' });
       fetchMissions();
     } else {
       console.error('Error creating mission:', error);
+      alert(`Error creating mission: ${error.message}`);
     }
   };
 
