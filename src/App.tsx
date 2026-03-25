@@ -19,7 +19,7 @@ import medalIcon from './assets/dashboard/medal.png';
 interface UserData {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   role: 'student' | 'teacher' | 'admin';
   grade?: string;
   balance: number;
@@ -33,6 +33,7 @@ interface Transaction {
   reason: string;
   date: string;
   createdBy: string;
+  mission_id?: number;
 }
 
 interface Grade {
@@ -69,6 +70,11 @@ function App() {
   const [newTransactionReason, setNewTransactionReason] = useState('');
   const [showAwardModal, setShowAwardModal] = useState(false);
   const [showAddMissionModal, setShowAddMissionModal] = useState(false);
+  const [showTransactionsModal, setShowTransactionsModal] = useState(false);
+  const [showGradingModal, setShowGradingModal] = useState(false);
+  const [allUsers, setAllUsers] = useState<UserData[]>([]);
+  const [selectedUserForGrading, setSelectedUserForGrading] = useState<UserData | null>(null);
+  const [newGrade, setNewGrade] = useState({ subject: '', score: 0, comment: '' });
   const [newMission, setNewMission] = useState({ title: '', description: '', reward: 0, deadline: '' });
   const [animatedBalance, setAnimatedBalance] = useState(0);
 
@@ -138,6 +144,9 @@ function App() {
     fetchMissions();
     fetchTransactions(session.user.id);
     fetchGrades(session.user.id);
+    if (userRole === 'admin') {
+      fetchUsers();
+    }
 
     // Subscribe to balance changes
     const channel = supabase
@@ -206,6 +215,55 @@ function App() {
     }
   };
 
+  const fetchUsers = async () => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('full_name');
+    
+    if (error) {
+      console.error('Error fetching users:', error);
+    }
+
+    if (data) {
+      setAllUsers(data.map(p => ({
+        id: p.id,
+        name: p.full_name,
+        avatar: p.avatar_url,
+        role: p.role,
+        grade: p.grade,
+        balance: p.balance
+      })));
+    }
+  };
+
+  const submitGrade = async () => {
+    if (!selectedUserForGrading || !newGrade.subject || newGrade.score <= 0) {
+      alert('Please fill all fields correctly');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('grades')
+      .insert([{
+        user_id: selectedUserForGrading.id,
+        subject: newGrade.subject,
+        score: newGrade.score,
+        comment: newGrade.comment
+      }]);
+
+    if (!error) {
+      alert('Grade assigned successfully!');
+      setShowGradingModal(false);
+      setNewGrade({ subject: '', score: 0, comment: '' });
+      // Refresh user data to show new average if needed
+      fetchUsers();
+    } else {
+      console.error('Error assigning grade:', error);
+      alert(`Error assigning grade: ${error.message}`);
+    }
+  };
+
   const fetchTransactions = async (userId: string) => {
     const { data, error } = await supabase
       .from('transactions')
@@ -223,7 +281,8 @@ function App() {
         amount: t.amount,
         reason: t.reason,
         date: new Date(t.created_at).toLocaleDateString(),
-        createdBy: t.created_by
+        createdBy: t.created_by,
+        mission_id: t.mission_id
       })));
     }
   };
@@ -285,7 +344,7 @@ function App() {
     setCurrentUser(null);
   };
 
-  const awardYBD = async (amount: number, reason: string) => {
+  const awardYBD = async (amount: number, reason: string, missionId?: string) => {
     if (amount <= 0 || !reason || !currentUser) return;
     
     const { error } = await supabase
@@ -293,6 +352,7 @@ function App() {
       .insert([
         {
           user_id: currentUser.id,
+          mission_id: missionId ? parseInt(missionId) : null,
           amount: Math.round(amount),
           reason,
           created_by: currentRole === 'admin' ? 'Admin' : 'Teacher'
@@ -668,7 +728,9 @@ function App() {
               </div>
 
               <div className="space-y-4">
-                {cases.map((mission, idx) => (
+                {cases
+                  .filter(m => !transactions.some(t => t.mission_id === parseInt(m.id)))
+                  .map((mission, idx) => (
                   <div key={idx} className="bg-zinc-900/50 border border-zinc-800 rounded-[2rem] p-10 group relative transition-all duration-300 hover:border-yellow-400/20">
                     <div className="flex justify-between items-start gap-6">
                       <div className="flex-1 space-y-4">
@@ -690,9 +752,9 @@ function App() {
                             <Calendar className="w-3.5 h-3.5" />
                             {t('deadline')}: {mission.deadline}
                           </div>
-                          <button 
+                           <button 
                             className="px-8 py-3.5 bg-transparent border border-zinc-700 text-zinc-200 font-bold text-[11px] uppercase tracking-widest rounded-xl hover:border-yellow-400 hover:text-yellow-400 transition-all flex items-center gap-2"
-                            onClick={() => awardYBD(mission.reward * 0.8, mission.title)}
+                            onClick={() => awardYBD(mission.reward * 0.8, mission.title, mission.id)}
                           >
                             {t('accept')} <ChevronRight className="w-3 h-3" />
                           </button>
@@ -739,10 +801,49 @@ function App() {
                  ))}
                </div>
 
-               <button className="w-full mt-8 py-4 bg-zinc-800 border border-zinc-700 rounded-xl text-[10px] font-bold text-zinc-400 uppercase tracking-[2px] hover:text-white hover:border-zinc-600 transition-all">
-                  {t('fullAuditLog')}
-               </button>
-            </section>
+                <button 
+                  onClick={() => setShowTransactionsModal(true)}
+                  className="w-full mt-8 py-4 bg-zinc-800 border border-zinc-700 rounded-xl text-[10px] font-bold text-zinc-400 uppercase tracking-[2px] hover:text-white hover:border-zinc-600 transition-all"
+                >
+                  {t('viewFinancialHistory')}
+                </button>
+             </section>
+
+             {/* Transactions Modal */}
+             {showTransactionsModal && (
+               <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+                 <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col max-h-[80vh]">
+                   <div className="flex justify-between items-center mb-8">
+                     <h2 className="text-3xl font-bold text-white">Financial History</h2>
+                     <button onClick={() => setShowTransactionsModal(false)} className="text-zinc-500 hover:text-white text-3xl">&times;</button>
+                   </div>
+                   
+                   <div className="flex-1 overflow-y-auto pr-4 space-y-4">
+                     {transactions.map((tx, idx) => (
+                       <div key={idx} className="flex justify-between items-center p-4 bg-zinc-800/50 rounded-2xl border border-white/5">
+                         <div>
+                           <div className="font-bold text-white text-lg">{tx.reason}</div>
+                           <div className="text-xs text-zinc-500 uppercase font-bold tracking-widest">{tx.date} • {tx.createdBy}</div>
+                         </div>
+                         <div className={`text-xl font-bold tabular-nums ${tx.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                           {tx.amount > 0 ? '+' : ''}{tx.amount}
+                         </div>
+                       </div>
+                     ))}
+                     {transactions.length === 0 && (
+                       <div className="text-center py-20 text-zinc-500">No transactions recorded yet.</div>
+                     )}
+                   </div>
+                   
+                   <button 
+                     onClick={() => setShowTransactionsModal(false)}
+                     className="mt-8 w-full py-4 bg-yellow-400 text-black font-bold rounded-2xl flex items-center justify-center gap-2"
+                   >
+                     Close History
+                   </button>
+                 </div>
+               </div>
+             )}
           </div>
         </div>
       </div>
@@ -795,7 +896,8 @@ function App() {
           <div className="relative">
             {currentPage === 'dashboard' && renderDashboard()}
             {currentPage === 'missions_admin' && renderMissionsAdmin()}
-            {currentPage !== 'dashboard' && currentPage !== 'missions_admin' && (
+            {currentPage === 'students' && renderAdminStudents()}
+            {currentPage !== 'dashboard' && currentPage !== 'missions_admin' && currentPage !== 'students' && (
                <div className="p-20 text-center flex flex-col items-center justify-center min-h-[80vh]">
                   <Database className="w-16 h-16 text-zinc-800 mb-8" />
                   <h2 className="text-3xl font-bold text-white uppercase tracking-tight opacity-50">{t('moduleUnderDev')}</h2>
@@ -804,6 +906,114 @@ function App() {
             )}
           </div>
         </main>
+      </div>
+    );
+  };
+
+  const renderAdminStudents = () => {
+    return (
+      <div className="flex-1 p-10 overflow-y-auto">
+        <header className="mb-12">
+          <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter">Student Management</h1>
+          <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Assign grades and track performance</p>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {allUsers.filter(u => u.role === 'student').map(user => (
+            <div key={user.id} className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] hover:border-yellow-400/20 transition-all group">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xl font-bold text-white uppercase overflow-hidden group-hover:border-yellow-400/40 transition-colors">
+                  {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name[0]}
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-lg leading-tight uppercase group-hover:text-yellow-400 transition-colors">{user.name}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest py-1 px-2 bg-zinc-800 rounded-md">Class {user.grade || 'N/A'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-zinc-800/30 rounded-2xl border border-white/5 mb-6">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Balance</span>
+                  <span className="text-xl font-bold text-white tabular-nums">${user.balance}</span>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => {
+                  setSelectedUserForGrading(user);
+                  setShowGradingModal(true);
+                }}
+                className="w-full py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-[10px] font-bold text-yellow-400 uppercase tracking-widest hover:bg-yellow-400 hover:text-black hover:border-yellow-400 transition-all shadow-sm flex items-center justify-center gap-2"
+              >
+                Assign Grade <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Grading Modal */}
+        {showGradingModal && selectedUserForGrading && (
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+            <div className="bg-zinc-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300">
+              <div className="mb-8 flex justify-between items-start">
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-2 uppercase tracking-tighter">Assign Grade</h2>
+                  <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">For Student: {selectedUserForGrading.name}</p>
+                </div>
+                <button onClick={() => setShowGradingModal(false)} className="text-zinc-600 hover:text-white transition-colors">&times;</button>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 ml-1">Subject</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Mathematics"
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-yellow-400 transition-all font-medium"
+                    value={newGrade.subject}
+                    onChange={(e) => setNewGrade({ ...newGrade, subject: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 ml-1">Score (0-100)</label>
+                  <input 
+                    type="number" 
+                    placeholder="Score percentage"
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-yellow-400 transition-all font-medium"
+                    value={newGrade.score || ''}
+                    onChange={(e) => setNewGrade({ ...newGrade, score: parseInt(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 ml-1">Comments</label>
+                  <textarea 
+                    placeholder="Enter teacher feedback..."
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-yellow-400 transition-all font-medium h-32 resize-none"
+                    value={newGrade.comment}
+                    onChange={(e) => setNewGrade({ ...newGrade, comment: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-10">
+                <button 
+                  onClick={() => setShowGradingModal(false)}
+                  className="py-4 bg-transparent border border-zinc-800 rounded-2xl text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white hover:border-zinc-700 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={submitGrade}
+                  className="py-4 bg-yellow-400 text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-yellow-300 transition-all shadow-lg shadow-yellow-400/20"
+                >
+                  Confirm Grade
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
