@@ -1,17 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Eye, EyeOff, Sun, Moon, ShieldCheck, BookOpen, Users } from "lucide-react";
+import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 
-const LoginPage: React.FC<{ onLogin: (role: string) => void }> = ({ onLogin }) => {
+const LoginPage: React.FC = () => {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [grade, setGrade] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState("student");
+  const [selectedRole] = useState("student");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

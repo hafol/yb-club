@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   avatar_url TEXT,
   role TEXT DEFAULT 'student' CHECK (role IN ('student', 'teacher', 'admin')),
   grade TEXT,
-  balance BIGINT DEFAULT 2500,
+  balance BIGINT DEFAULT 0,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -38,11 +38,64 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.missions ENABLE ROW LEVEL SECURITY;
 
--- 5. Create basic policies (Allow users to read their own data)
+-- 5. Create basic policies
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
 CREATE POLICY "Users can view their own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
+DROP POLICY IF EXISTS "Users can view their own transactions" ON public.transactions;
 CREATE POLICY "Users can view their own transactions" ON public.transactions FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Everyone can view missions" ON public.missions;
 CREATE POLICY "Everyone can view missions" ON public.missions FOR SELECT TO authenticated USING (true);
 
--- 6. Grant admin/teacher permissions (Simplistic policy for demonstration)
+-- 6. Mission Management (Admin only)
+DROP POLICY IF EXISTS "Admins can insert missions" ON public.missions;
+CREATE POLICY "Admins can insert missions" ON public.missions FOR INSERT TO authenticated 
+WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admins can update missions" ON public.missions;
+CREATE POLICY "Admins can update missions" ON public.missions FOR UPDATE TO authenticated 
+USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- 7. Transaction Management (Teachers/Admins)
+DROP POLICY IF EXISTS "Teachers can reward students" ON public.transactions;
 CREATE POLICY "Teachers can reward students" ON public.transactions FOR INSERT TO authenticated 
 WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('teacher', 'admin')));
+
+-- 8. Profile sync trigger function
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, avatar_url, role, grade)
+  VALUES (
+    new.id,
+    new.raw_user_metadata->>'full_name',
+    new.raw_user_metadata->>'avatar_url',
+    COALESCE(new.raw_user_metadata->>'role', 'student'),
+    new.raw_user_metadata->>'grade'
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 9. Trigger to call function on signup
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 10. Function to update balance on transaction
+CREATE OR REPLACE FUNCTION public.update_profile_balance()
+RETURNS trigger AS $$
+BEGIN
+  UPDATE public.profiles
+  SET balance = balance + new.amount,
+      updated_at = timezone('utc'::text, now())
+  WHERE id = new.user_id;
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 11. Trigger to update balance
+DROP TRIGGER IF EXISTS on_transaction_inserted ON public.transactions;
+CREATE TRIGGER on_transaction_inserted
+  AFTER INSERT ON public.transactions
+  FOR EACH ROW EXECUTE FUNCTION public.update_profile_balance();

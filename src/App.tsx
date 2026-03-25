@@ -52,44 +52,24 @@ interface Case {
   status: 'active' | 'closed';
 }
 
-const mockStudents: UserData[] = [
-  { id: '1', name: 'Alice Chen', email: 'alice@school.edu', role: 'student', grade: '10A', balance: 2450, avatar: 'AC' },
-  { id: '2', name: 'Bob Rodriguez', email: 'bob@school.edu', role: 'student', grade: '10A', balance: 1820, avatar: 'BR' },
-  { id: '3', name: 'Carol Kim', email: 'carol@school.edu', role: 'student', grade: '11B', balance: 3210, avatar: 'CK' },
-  { id: '4', name: 'David Patel', email: 'david@school.edu', role: 'student', grade: '10A', balance: 980, avatar: 'DP' },
-];
-
-const mockTransactions: Transaction[] = [
-  { id: 't1', to: 'Alice Chen', amount: 250, reason: 'Case submission - Market Research', date: '2h ago', createdBy: 'Teacher' },
-  { id: 't2', to: 'Bob Rodriguez', amount: -50, reason: 'Late attendance', date: '1d ago', createdBy: 'Admin' },
-  { id: 't3', to: 'Carol Kim', amount: 500, reason: 'Winning pitch competition', date: '3d ago', createdBy: 'Teacher' },
-];
-
-const mockGrades: Grade[] = [
-  { id: 'g1', subject: 'Business Fundamentals', score: 92, comment: 'Excellent analysis', date: 'Yesterday' },
-  { id: 'g2', subject: 'Marketing', score: 78, comment: 'Good but could improve creativity', date: '3 days ago' },
-  { id: 'g3', subject: 'Economics', score: 85, comment: 'Solid understanding', date: '1 week ago' },
-];
-
-const mockCases: Case[] = [
-  { id: 'c1', title: 'Develop a Sustainable Product Idea', description: 'Create a business plan for an eco-friendly product targeting Gen Z.', reward: 350, deadline: '2024-12-05', status: 'active' },
-  { id: 'c2', title: 'Market Analysis for Local Cafe', description: 'Analyze competitors and propose marketing strategy.', reward: 200, deadline: '2024-11-28', status: 'active' },
-];
+// Mock data removed in favor of Supabase fetching
 
 function App() {
   const { t } = useTranslation();
   const [session, setSession] = useState<Session | null>(null);
   const [currentRole, setCurrentRole] = useState<'landing' | 'login' | 'student' | 'teacher' | 'admin'>('landing');
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'cases' | 'grades' | 'leaderboard' | 'students' | 'attendance' | 'bank' | 'users'>('dashboard');
-  const [balance, setBalance] = useState(2450);
-  const [transactions, setTransactions] = useState<Transaction[]>(mockTransactions);
-  const [grades, setGrades] = useState<Grade[]>(mockGrades);
-  const [cases, setCases] = useState<Case[]>(mockCases);
-  const [selectedStudent, setSelectedStudent] = useState<UserData>(mockStudents[0]);
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'cases' | 'grades' | 'leaderboard' | 'students' | 'attendance' | 'bank' | 'users' | 'missions_admin'>('dashboard');
+  const [balance, setBalance] = useState(0);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [cases, setCases] = useState<Case[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<UserData | null>(null);
   const [newTransactionAmount, setNewTransactionAmount] = useState(100);
   const [newTransactionReason, setNewTransactionReason] = useState('');
   const [showAwardModal, setShowAwardModal] = useState(false);
+  const [showAddMissionModal, setShowAddMissionModal] = useState(false);
+  const [newMission, setNewMission] = useState({ title: '', description: '', reward: 0, deadline: '' });
   const [animatedBalance, setAnimatedBalance] = useState(0);
 
   // Authentication Setup
@@ -108,8 +88,19 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleAuthUser = (session: Session) => {
-    let userRole = (session.user.user_metadata.role as any) || 'student';
+  const handleAuthUser = async (session: Session) => {
+    // Fetch profile from public.profiles
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching profile:', profile, error);
+    }
+
+    let userRole = profile?.role || (session.user.user_metadata.role as any) || 'student';
     
     // System Admin Override for the owner
     if (session.user.email === 'pzhumash@gmail.com') {
@@ -118,15 +109,111 @@ function App() {
 
     const user: UserData = {
       id: session.user.id,
-      name: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
+      name: profile?.full_name || session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
       email: session.user.email || '',
       role: userRole,
-      grade: userRole === 'admin' ? undefined : '10B',
-      balance: userRole === 'admin' ? 0 : 2450,
-      avatar: session.user.user_metadata.avatar_url || 'U'
+      grade: profile?.grade || session.user.user_metadata.grade || '10B',
+      balance: profile?.balance || 0,
+      avatar: profile?.avatar_url || session.user.user_metadata.avatar_url || 'U'
     };
+    
     setCurrentUser(user);
+    setBalance(user.balance);
     setCurrentRole(userRole);
+    
+    fetchMissions();
+    fetchTransactions(session.user.id);
+
+    // Subscribe to balance changes
+    const channel = supabase
+      .channel('profile_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${session.user.id}`
+        },
+        (payload) => {
+          if (payload.new && (payload.new as any).balance !== undefined) {
+             setBalance((payload.new as any).balance);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const fetchMissions = async () => {
+    const { data, error } = await supabase
+      .from('missions')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error fetching missions:', error);
+    }
+    
+    if (data) {
+      setCases(data.map(m => ({
+        id: m.id.toString(),
+        title: m.title,
+        description: m.description,
+        reward: m.reward,
+        deadline: m.deadline,
+        status: m.status
+      })));
+    }
+  };
+
+  const fetchTransactions = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error fetching transactions:', error);
+    }
+
+    if (data) {
+      setTransactions(data.map(t => ({
+        id: t.id.toString(),
+        to: currentUser?.name || 'User',
+        amount: t.amount,
+        reason: t.reason,
+        date: new Date(t.created_at).toLocaleDateString(),
+        createdBy: t.created_by
+      })));
+    }
+  };
+
+  const createMission = async () => {
+    if (!newMission.title || !newMission.description || !newMission.reward || !newMission.deadline) return;
+
+    const { data, error } = await supabase
+      .from('missions')
+      .insert([
+        { 
+          title: newMission.title, 
+          description: newMission.description, 
+          reward: newMission.reward, 
+          deadline: newMission.deadline 
+        }
+      ]);
+
+    if (!error) {
+      console.log('Mission created:', data);
+      setShowAddMissionModal(false);
+      setNewMission({ title: '', description: '', reward: 0, deadline: '' });
+      fetchMissions();
+    } else {
+      console.error('Error creating mission:', error);
+    }
   };
 
   // Animate balance
@@ -149,29 +236,7 @@ function App() {
     }
   }, [balance, currentRole]);
 
-  const handleLogin = (role: string) => {
-    // Legacy simulated login - will be replaced by Supabase Auth
-    const roleMap: Record<string, 'student' | 'teacher' | 'admin'> = { 
-      student: 'student', 
-      teacher: 'teacher', 
-      admin: 'admin' 
-    };
-    const r = roleMap[role] || 'student';
-    
-    const user: UserData = {
-      id: 'u1',
-      name: role === 'student' ? 'Alex Rivera' : role === 'teacher' ? 'Ms. Elena Vargas' : 'Principal Torres',
-      email: role === 'student' ? 'alex.r@school.edu' : role === 'teacher' ? 'elena.v@school.edu' : 'admin@ybclub.edu',
-      role: r,
-      grade: role === 'student' ? '10B' : undefined,
-      balance: role === 'student' ? 2450 : 0,
-      avatar: role === 'student' ? 'AR' : 'EV'
-    };
-    
-    setCurrentUser(user);
-    setCurrentRole(r);
-    setCurrentPage('dashboard');
-  };
+  // handleLogin removed in favor of Supabase onAuthStateChange
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -179,21 +244,36 @@ function App() {
     setCurrentUser(null);
   };
 
-  const awardYBD = (amount: number, reason: string) => {
-    if (amount <= 0 || !reason) return;
-    const newBal = balance + amount;
-    setBalance(newBal);
+  const awardYBD = async (amount: number, reason: string) => {
+    if (amount <= 0 || !reason || !currentUser) return;
     
-    const newTx: Transaction = {
-      id: 'tx' + Date.now(),
-      to: currentUser?.name || 'Student',
-      amount,
-      reason,
-      date: 'Just now',
-      createdBy: currentRole === 'admin' ? 'Admin' : 'Teacher'
-    };
-    setTransactions([newTx, ...transactions]);
-    setShowAwardModal(false);
+    const { error } = await supabase
+      .from('transactions')
+      .insert([
+        {
+          user_id: currentUser.id,
+          amount,
+          reason,
+          created_by: currentRole === 'admin' ? 'Admin' : 'Teacher'
+        }
+      ]);
+
+    if (!error) {
+      // Refresh balance and transactions
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', currentUser.id)
+        .single();
+      
+      if (profile) {
+        setBalance(profile.balance);
+      }
+      fetchTransactions(currentUser.id);
+      setShowAwardModal(false);
+    } else {
+      console.error('Error rewarding student:', error);
+    }
   };
 
   const Sidebar = ({ role }: { role: string }) => {
@@ -213,6 +293,7 @@ function App() {
         ]
       : [
           { id: 'dashboard', label: t('dashboard'), icon: ShieldCheck },
+          { id: 'missions_admin', label: 'Manage Missions', icon: BookOpen },
           { id: 'bank', label: t('bank'), icon: DollarSign },
           { id: 'users', label: t('users'), icon: Users },
           { id: 'students', label: t('allStudents'), icon: Users },
@@ -284,6 +365,119 @@ function App() {
           </div>
         </div>
       </aside>
+    );
+  };
+
+  const renderMissionsAdmin = () => {
+    return (
+      <div className="p-8 space-y-8 max-w-[1200px] mx-auto">
+        <header className="flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold text-white tracking-tight">Mission Management</h1>
+            <p className="text-zinc-500 mt-2">Create and monitor strategic challenges for students.</p>
+          </div>
+          <button 
+            onClick={() => setShowAddMissionModal(true)}
+            className="px-6 py-3 bg-yellow-400 text-black font-bold rounded-xl hover:scale-105 transition-all flex items-center gap-2"
+          >
+            <BookOpen className="w-5 h-5" />
+            Add New Mission
+          </button>
+        </header>
+
+        <div className="grid gap-6">
+          {cases.map((mission) => (
+            <div key={mission.id} className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold text-white">{mission.title}</h3>
+                <p className="text-zinc-500 text-sm mt-1">{mission.description}</p>
+                <div className="flex gap-4 mt-4">
+                  <span className="text-xs font-bold text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full uppercase tracking-widest border border-yellow-400/10">
+                    Reward: ${mission.reward}
+                  </span>
+                  <span className="text-xs font-bold text-zinc-500 bg-zinc-800 px-3 py-1 rounded-full uppercase tracking-widest">
+                    Deadline: {mission.deadline}
+                  </span>
+                  <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest ${mission.status === 'active' ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'}`}>
+                    {mission.status}
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button className="p-2 bg-zinc-800 text-zinc-400 hover:text-white rounded-lg transition-colors">
+                  Edit
+                </button>
+                <button className="p-2 bg-zinc-800 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                  Close
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {showAddMissionModal && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div className="bg-zinc-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300">
+              <h2 className="text-3xl font-bold text-white mb-6">Create New Mission</h2>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Mission Title</label>
+                  <input 
+                    type="text" 
+                    value={newMission.title}
+                    onChange={(e) => setNewMission({...newMission, title: e.target.value})}
+                    placeholder="e.g. Market Research Challenge"
+                    className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Description</label>
+                  <textarea 
+                    value={newMission.description}
+                    onChange={(e) => setNewMission({...newMission, description: e.target.value})}
+                    placeholder="Describe the mission goals..."
+                    className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all h-32 resize-none"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Reward (YBD)</label>
+                    <input 
+                      type="number" 
+                      value={newMission.reward}
+                      onChange={(e) => setNewMission({...newMission, reward: parseInt(e.target.value)})}
+                      className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Deadline Date</label>
+                    <input 
+                      type="date" 
+                      value={newMission.deadline}
+                      onChange={(e) => setNewMission({...newMission, deadline: e.target.value})}
+                      className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-4 pt-4">
+                  <button 
+                    onClick={() => setShowAddMissionModal(false)}
+                    className="flex-1 py-4 bg-zinc-800 text-zinc-400 font-bold rounded-2xl hover:bg-zinc-700 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={createMission}
+                    className="flex-1 py-4 bg-yellow-400 text-black font-bold rounded-2xl hover:scale-105 transition-all shadow-lg shadow-yellow-400/20"
+                  >
+                    Create Mission
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -541,7 +735,7 @@ function App() {
             <LanguageSwitcher />
           </div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-yellow-400/5 blur-[150px] rounded-full -z-10" />
-          <LoginPage onLogin={handleLogin} />
+          <LoginPage />
         </div>
       );
     }
@@ -557,7 +751,8 @@ function App() {
           
           <div className="relative">
             {currentPage === 'dashboard' && renderDashboard()}
-            {currentPage !== 'dashboard' && (
+            {currentPage === 'missions_admin' && renderMissionsAdmin()}
+            {currentPage !== 'dashboard' && currentPage !== 'missions_admin' && (
                <div className="p-20 text-center flex flex-col items-center justify-center min-h-[80vh]">
                   <Database className="w-16 h-16 text-zinc-800 mb-8" />
                   <h2 className="text-3xl font-bold text-white uppercase tracking-tight opacity-50">{t('moduleUnderDev')}</h2>
