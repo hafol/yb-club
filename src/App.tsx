@@ -229,6 +229,7 @@ function App() {
       setAllUsers(data.map(p => ({
         id: p.id,
         name: p.full_name,
+        email: '',
         avatar: p.avatar_url,
         role: p.role,
         grade: p.grade,
@@ -675,11 +676,11 @@ function App() {
             </div>
             <div>
               <div className="text-5xl font-bold text-white tracking-tight">
-                {cases.length.toString().padStart(2, '0')} <span className="text-xl text-zinc-600">Active</span>
+                {transactions.filter(t => t.mission_id).length.toString().padStart(2, '0')} <span className="text-xl text-zinc-600">Total</span>
               </div>
               <div className="text-[10px] text-yellow-400 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
-                {cases.length} Strategic Missions
+                {transactions.filter(t => t.mission_id).length} Completed Challenges
               </div>
             </div>
           </div>
@@ -895,9 +896,11 @@ function App() {
           
           <div className="relative">
             {currentPage === 'dashboard' && renderDashboard()}
+            {currentPage === 'cases' && renderDashboard()}
+            {currentPage === 'grades' && renderGrades()}
             {currentPage === 'missions_admin' && renderMissionsAdmin()}
             {currentPage === 'students' && renderAdminStudents()}
-            {currentPage !== 'dashboard' && currentPage !== 'missions_admin' && currentPage !== 'students' && (
+            {currentPage !== 'dashboard' && currentPage !== 'missions_admin' && currentPage !== 'students' && currentPage !== 'grades' && currentPage !== 'cases' && (
                <div className="p-20 text-center flex flex-col items-center justify-center min-h-[80vh]">
                   <Database className="w-16 h-16 text-zinc-800 mb-8" />
                   <h2 className="text-3xl font-bold text-white uppercase tracking-tight opacity-50">{t('moduleUnderDev')}</h2>
@@ -906,6 +909,43 @@ function App() {
             )}
           </div>
         </main>
+      </div>
+    );
+  };
+
+  const renderGrades = () => {
+    return (
+      <div className="flex-1 p-10 overflow-y-auto">
+        <header className="mb-12">
+          <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter text-left">My Academic Grades</h1>
+          <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Track your performance and teacher feedback</p>
+        </header>
+
+        <div className="space-y-6">
+          {grades.map((grade, idx) => (
+            <div key={idx} className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2.5rem] flex justify-between items-center group hover:border-yellow-400/20 transition-all">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl font-bold text-yellow-400 border border-zinc-700 group-hover:bg-yellow-400 group-hover:text-black transition-all">
+                  {grade.score}%
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-white uppercase tracking-tight mb-1">{grade.subject}</h3>
+                  <p className="text-zinc-500 text-sm font-medium">{grade.comment || 'No comment provided'}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Assigned Date</div>
+                <div className="text-white font-bold tracking-tight">{grade.date}</div>
+              </div>
+            </div>
+          ))}
+          {grades.length === 0 && (
+            <div className="text-center py-40">
+              <div className="text-zinc-800 text-6xl font-black mb-4 uppercase tracking-tighter">None</div>
+              <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">No grades recorded yet</p>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -919,7 +959,7 @@ function App() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {allUsers.filter(u => u.role === 'student').map(user => (
+          {allUsers.filter(u => u.role?.toLowerCase() === 'student').map(user => (
             <div key={user.id} className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] hover:border-yellow-400/20 transition-all group">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xl font-bold text-white uppercase overflow-hidden group-hover:border-yellow-400/40 transition-colors">
