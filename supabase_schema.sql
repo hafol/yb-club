@@ -61,32 +61,45 @@ DROP POLICY IF EXISTS "Admins can update missions" ON public.missions;
 CREATE POLICY "Admins can update missions" ON public.missions FOR UPDATE TO authenticated 
 USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
--- 7. Transaction Management (Teachers/Admins)
+-- 7. Transaction Management
 DROP POLICY IF EXISTS "Teachers can reward students" ON public.transactions;
 CREATE POLICY "Teachers can reward students" ON public.transactions FOR INSERT TO authenticated 
 WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('teacher', 'admin')));
 
+DROP POLICY IF EXISTS "Users can record their own transactions" ON public.transactions;
+CREATE POLICY "Users can record their own transactions" ON public.transactions FOR INSERT TO authenticated 
+WITH CHECK (auth.uid() = user_id);
+
 -- 8. Profile sync trigger function
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, avatar_url, role, grade)
-  VALUES (
-    new.id,
-    new.raw_user_metadata->>'full_name',
-    new.raw_user_metadata->>'avatar_url',
-    COALESCE(new.raw_user_metadata->>'role', 'student'),
-    new.raw_user_metadata->>'grade'
-  )
-  ON CONFLICT (id) DO UPDATE SET
-    full_name = EXCLUDED.full_name,
-    avatar_url = EXCLUDED.avatar_url,
-    role = EXCLUDED.role,
-    grade = EXCLUDED.grade,
-    updated_at = timezone('utc'::text, now());
+  BEGIN
+    INSERT INTO public.profiles (id, full_name, avatar_url, role, grade)
+    VALUES (
+      new.id,
+      new.raw_user_metadata->>'full_name',
+      new.raw_user_metadata->>'avatar_url',
+      COALESCE(new.raw_user_metadata->>'role', 'student'),
+      new.raw_user_metadata->>'grade'
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      full_name = EXCLUDED.full_name,
+      avatar_url = EXCLUDED.avatar_url,
+      role = EXCLUDED.role,
+      grade = EXCLUDED.grade,
+      updated_at = timezone('utc'::text, now());
+  EXCEPTION WHEN OTHERS THEN
+    -- Ignore errors to avoid blocking auth signup
+    -- The frontend will handle profile creation as a fallback
+    RAISE WARNING 'Error creating profile in trigger: %', SQLERRM;
+  END;
   RETURN new;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- 9. Trigger to call function on signup
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;

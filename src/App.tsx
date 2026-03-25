@@ -568,13 +568,13 @@ function App() {
             </div>
             <div>
               <div className="text-5xl font-bold text-white tracking-tight tabular-nums mb-4">
-                92.4 <span className="text-xl text-zinc-600">%</span>
+                {grades.length > 0 ? (grades.reduce((acc, g) => acc + g.score, 0) / grades.length).toFixed(1) : '0.0'} <span className="text-xl text-zinc-600">%</span>
               </div>
               <div className="space-y-2">
                 <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                  <div className="w-[92%] h-full bg-green-400 transition-all duration-1000" />
+                  <div className={`h-full bg-green-400 transition-all duration-1000`} style={{ width: `${grades.length > 0 ? (grades.reduce((acc, g) => acc + g.score, 0) / grades.length) : 0}%` }} />
                 </div>
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest text-right">Top 5%</div>
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest text-right">{grades.length > 0 ? 'Verified' : 'No Data'}</div>
               </div>
             </div>
           </div>
@@ -591,11 +591,11 @@ function App() {
             </div>
             <div>
               <div className="text-5xl font-bold text-white tracking-tight">
-                04 <span className="text-xl text-zinc-600">/ 12</span>
+                {cases.length.toString().padStart(2, '0')} <span className="text-xl text-zinc-600">Active</span>
               </div>
               <div className="text-[10px] text-yellow-400 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
-                2 Priority Challenges
+                {cases.length} Strategic Missions
               </div>
             </div>
           </div>
@@ -615,11 +615,11 @@ function App() {
             </div>
             <div>
               <div className="text-5xl font-bold text-white tracking-tight">
-                Diamond
+                {currentUser?.role === 'admin' ? 'Premium' : 'Active'}
               </div>
               <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-zinc-600" />
-                Certified Member
+                {currentUser?.role === 'admin' ? 'Administrator' : 'Verified Member'}
               </div>
             </div>
           </div>
