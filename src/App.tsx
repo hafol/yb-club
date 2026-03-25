@@ -137,6 +137,7 @@ function App() {
     
     fetchMissions();
     fetchTransactions(session.user.id);
+    fetchGrades(session.user.id);
 
     // Subscribe to balance changes
     const channel = supabase
@@ -180,6 +181,27 @@ function App() {
         reward: m.reward,
         deadline: m.deadline,
         status: m.status
+      })));
+    }
+  };
+
+  const fetchGrades = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('grades')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error fetching grades:', error);
+    }
+
+    if (data) {
+      setGrades(data.map(g => ({
+        id: g.id.toString(),
+        subject: g.subject,
+        score: g.score,
+        comment: g.comment,
+        date: new Date(g.created_at).toLocaleDateString()
       })));
     }
   };
@@ -609,7 +631,7 @@ function App() {
               <div className="text-right flex flex-col items-end">
                 <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px] mb-2">{t('rank')}</div>
                 <div className="text-[9px] font-bold bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full uppercase tracking-widest border border-zinc-700">
-                  Elite
+                  {currentUser?.role === 'admin' ? 'Elite' : 'Member'}
                 </div>
               </div>
             </div>
