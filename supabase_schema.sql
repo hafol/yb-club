@@ -64,6 +64,7 @@ CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE
 
 DROP POLICY IF EXISTS "Users can view their own transactions" ON public.transactions;
 CREATE POLICY "Users can view their own transactions" ON public.transactions FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Admins can view all transactions" ON public.transactions;
 CREATE POLICY "Admins can view all transactions" ON public.transactions FOR SELECT USING (
   EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
 );
@@ -74,6 +75,7 @@ WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can view their own grades" ON public.grades;
 CREATE POLICY "Users can view their own grades" ON public.grades FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Admins can view all grades" ON public.grades;
 CREATE POLICY "Admins can view all grades" ON public.grades FOR SELECT USING (
   EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
 );
@@ -90,14 +92,10 @@ DROP POLICY IF EXISTS "Admins can update missions" ON public.missions;
 CREATE POLICY "Admins can update missions" ON public.missions FOR UPDATE TO authenticated 
 USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
--- 7. Transaction Management
+-- 8. Transaction Management (Additional)
 DROP POLICY IF EXISTS "Teachers can reward students" ON public.transactions;
 CREATE POLICY "Teachers can reward students" ON public.transactions FOR INSERT TO authenticated 
 WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('teacher', 'admin')));
-
-DROP POLICY IF EXISTS "Users can record their own transactions" ON public.transactions;
-CREATE POLICY "Users can record their own transactions" ON public.transactions FOR INSERT TO authenticated 
-WITH CHECK (auth.uid() = user_id);
 
 -- 8. Profile sync trigger function
 CREATE OR REPLACE FUNCTION public.handle_new_user()
