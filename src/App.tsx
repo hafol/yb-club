@@ -293,7 +293,7 @@ function App() {
       .insert([
         {
           user_id: currentUser.id,
-          amount,
+          amount: Math.round(amount),
           reason,
           created_by: currentRole === 'admin' ? 'Admin' : 'Teacher'
         }
@@ -312,8 +312,10 @@ function App() {
       }
       fetchTransactions(currentUser.id);
       setShowAwardModal(false);
+      alert('Mission accepted! Reward added to your balance.');
     } else {
       console.error('Error rewarding student:', error);
+      alert(`Failed to accept mission: ${error.message}`);
     }
   };
 
