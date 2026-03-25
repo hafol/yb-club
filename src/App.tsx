@@ -226,6 +226,8 @@ function App() {
     }
 
     if (data) {
+      console.log('Fetched users count:', data.length);
+      // Optional: alert(`Fetched ${data.length} users`); 
       setAllUsers(data.map(p => ({
         id: p.id,
         name: p.full_name,
@@ -955,11 +957,16 @@ function App() {
       <div className="flex-1 p-10 overflow-y-auto">
         <header className="mb-12 flex justify-between items-end">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter">Student Management</h1>
-            <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Assign grades and track performance</p>
+            <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter text-left">Student Management</h1>
+            <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">
+              {allUsers.length} users found | Your Role: {currentUser?.role}
+            </p>
           </div>
           <button 
-            onClick={fetchUsers}
+            onClick={() => {
+              alert('Fetching users...');
+              fetchUsers();
+            }}
             className="px-6 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl text-[10px] font-bold text-zinc-400 uppercase tracking-widest hover:text-yellow-400 hover:border-yellow-400/50 transition-all flex items-center gap-2 group"
           >
             <Database className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
@@ -968,6 +975,12 @@ function App() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Debug show all for a second */}
+          {allUsers.length > 0 && allUsers.filter(u => u.role?.toLowerCase() === 'student').length === 0 && (
+            <div className="col-span-full mb-8 p-4 bg-yellow-400/10 border border-yellow-400/20 rounded-2xl text-yellow-400 text-[10px] font-bold uppercase tracking-widest">
+              Debug Note: Found {allUsers.length} total users, but none are students.
+            </div>
+          )}
           {allUsers.filter(u => u.role?.toLowerCase() === 'student').map(user => (
             <div key={user.id} className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] hover:border-yellow-400/20 transition-all group">
               <div className="flex items-center gap-4 mb-6">
