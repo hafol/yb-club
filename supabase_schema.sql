@@ -53,6 +53,9 @@ ALTER TABLE public.grades ENABLE ROW LEVEL SECURITY;
 -- 6. Create basic policies
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
 CREATE POLICY "Users can view their own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+);
 
 DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
@@ -62,6 +65,9 @@ CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE
 
 DROP POLICY IF EXISTS "Users can view their own transactions" ON public.transactions;
 CREATE POLICY "Users can view their own transactions" ON public.transactions FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Admins can view all transactions" ON public.transactions FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+);
 
 DROP POLICY IF EXISTS "Users can record their own transactions" ON public.transactions;
 CREATE POLICY "Users can record their own transactions" ON public.transactions FOR INSERT TO authenticated 
@@ -69,6 +75,9 @@ WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can view their own grades" ON public.grades;
 CREATE POLICY "Users can view their own grades" ON public.grades FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Admins can view all grades" ON public.grades FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+);
 
 DROP POLICY IF EXISTS "Everyone can view missions" ON public.missions;
 CREATE POLICY "Everyone can view missions" ON public.missions FOR SELECT TO authenticated USING (true);

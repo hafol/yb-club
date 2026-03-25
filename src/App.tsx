@@ -953,9 +953,18 @@ function App() {
   const renderAdminStudents = () => {
     return (
       <div className="flex-1 p-10 overflow-y-auto">
-        <header className="mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter">Student Management</h1>
-          <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Assign grades and track performance</p>
+        <header className="mb-12 flex justify-between items-end">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter">Student Management</h1>
+            <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Assign grades and track performance</p>
+          </div>
+          <button 
+            onClick={fetchUsers}
+            className="px-6 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl text-[10px] font-bold text-zinc-400 uppercase tracking-widest hover:text-yellow-400 hover:border-yellow-400/50 transition-all flex items-center gap-2 group"
+          >
+            <Database className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
+            Refresh Data
+          </button>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -991,6 +1000,13 @@ function App() {
               </button>
             </div>
           ))}
+          {allUsers.filter(u => u.role?.toLowerCase() === 'student').length === 0 && (
+            <div className="col-span-full py-32 flex flex-col items-center justify-center bg-zinc-900/30 border border-dashed border-zinc-800 rounded-[2.5rem]">
+              <Database className="w-12 h-12 text-zinc-800 mb-6" />
+              <div className="text-zinc-500 font-bold uppercase tracking-[4px] text-xs">No Students Found</div>
+              <p className="text-zinc-700 text-[10px] mt-2 font-medium uppercase tracking-widest text-center">Verify database connection or RLS policies</p>
+            </div>
+          )}
         </div>
 
         {/* Grading Modal */}
