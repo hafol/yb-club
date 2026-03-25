@@ -41,6 +41,12 @@ ALTER TABLE public.missions ENABLE ROW LEVEL SECURITY;
 -- 5. Create basic policies
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
 CREATE POLICY "Users can view their own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
+CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
+CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 DROP POLICY IF EXISTS "Users can view their own transactions" ON public.transactions;
 CREATE POLICY "Users can view their own transactions" ON public.transactions FOR SELECT USING (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Everyone can view missions" ON public.missions;
@@ -71,7 +77,13 @@ BEGIN
     new.raw_user_metadata->>'avatar_url',
     COALESCE(new.raw_user_metadata->>'role', 'student'),
     new.raw_user_metadata->>'grade'
-  );
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    full_name = EXCLUDED.full_name,
+    avatar_url = EXCLUDED.avatar_url,
+    role = EXCLUDED.role,
+    grade = EXCLUDED.grade,
+    updated_at = timezone('utc'::text, now());
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

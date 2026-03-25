@@ -107,6 +107,20 @@ function App() {
       userRole = 'admin';
     }
 
+    if (!profile) {
+      // Fallback: Create profile if missing (helps existing users)
+      const { error: upsertError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: session.user.id,
+          full_name: profile?.full_name || session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
+          avatar_url: profile?.avatar_url || session.user.user_metadata.avatar_url || 'U',
+          role: userRole,
+          grade: profile?.grade || session.user.user_metadata.grade || '10B'
+        });
+      if (upsertError) console.error('Error auto-creating profile:', upsertError);
+    }
+
     const user: UserData = {
       id: session.user.id,
       name: profile?.full_name || session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
