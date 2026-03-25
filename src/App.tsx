@@ -193,7 +193,10 @@ function App() {
   };
 
   const createMission = async () => {
-    if (!newMission.title || !newMission.description || !newMission.reward || !newMission.deadline) return;
+    if (!newMission.title || !newMission.description || !newMission.reward || !newMission.deadline) {
+      alert('Please fill in all fields (Title, Description, Reward, and Deadline).');
+      return;
+    }
 
     const { data, error } = await supabase
       .from('missions')
