@@ -7,7 +7,7 @@ import { supabase } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import { 
   Users, Calendar, LogOut, Search, BookOpen, Award, DollarSign,
-  Bell, ChevronRight, LayoutDashboard, Database, 
+  Bell, ChevronRight, LayoutDashboard, Database, Trophy,
   ShieldCheck, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 
@@ -900,9 +900,10 @@ function App() {
             {currentPage === 'dashboard' && renderDashboard()}
             {currentPage === 'cases' && renderDashboard()}
             {currentPage === 'grades' && renderGrades()}
+            {currentPage === 'leaderboard' && renderLeaderboard()}
             {currentPage === 'missions_admin' && renderMissionsAdmin()}
             {currentPage === 'students' && renderAdminStudents()}
-            {currentPage !== 'dashboard' && currentPage !== 'missions_admin' && currentPage !== 'students' && currentPage !== 'grades' && currentPage !== 'cases' && (
+            {currentPage !== 'dashboard' && currentPage !== 'leaderboard' && currentPage !== 'missions_admin' && currentPage !== 'students' && currentPage !== 'grades' && currentPage !== 'cases' && (
                <div className="p-20 text-center flex flex-col items-center justify-center min-h-[80vh]">
                   <Database className="w-16 h-16 text-zinc-800 mb-8" />
                   <h2 className="text-3xl font-bold text-white uppercase tracking-tight opacity-50">{t('moduleUnderDev')}</h2>
@@ -911,6 +912,107 @@ function App() {
             )}
           </div>
         </main>
+      </div>
+    );
+  };
+
+  const renderLeaderboard = () => {
+    const sortedUsers = [...allUsers]
+      .filter(u => u.role?.toLowerCase() === 'student')
+      .sort((a, b) => b.balance - a.balance);
+    
+    const top3 = sortedUsers.slice(0, 3);
+    const others = sortedUsers.slice(3);
+
+    return (
+      <div className="flex-1 p-10 overflow-y-auto">
+        <header className="mb-16">
+          <h1 className="text-5xl font-black text-white mb-3 uppercase tracking-tighter text-left italic">Global Rankings</h1>
+          <p className="text-yellow-400 font-bold uppercase tracking-[0.2em] text-[10px]">The Elite Circle of YB Business Club</p>
+        </header>
+
+        {/* Podium View */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 items-end">
+          {/* 2nd Place */}
+          {top3[1] && (
+            <div className="order-2 md:order-1 bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[3rem] text-center relative pt-16 group hover:border-zinc-500/30 transition-all">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-zinc-800 border-4 border-zinc-600 overflow-hidden shadow-2xl">
+                {top3[1].avatar ? <img src={top3[1].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-bold">{top3[1].name[0]}</div>}
+              </div>
+              <div className="text-zinc-500 font-black text-4xl mb-2 opacity-20 italic">#2</div>
+              <h3 className="text-xl font-bold text-white uppercase mb-4">{top3[1].name}</h3>
+              <div className="inline-block px-4 py-2 bg-zinc-800/50 rounded-full text-zinc-300 font-bold text-xs border border-white/5">
+                ${top3[1].balance}
+              </div>
+            </div>
+          )}
+
+          {/* 1st Place */}
+          {top3[0] && (
+            <div className="order-1 md:order-2 bg-gradient-to-b from-yellow-400/20 to-transparent backdrop-blur-2xl border border-yellow-400/30 p-10 rounded-[4rem] text-center relative pt-20 group scale-110 shadow-[0_0_100px_rgba(250,204,21,0.1)]">
+              <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-zinc-900 border-4 border-yellow-400 overflow-hidden shadow-[0_0_40px_rgba(250,204,21,0.4)]">
+                {top3[0].avatar ? <img src={top3[0].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-yellow-400">{top3[0].name[0]}</div>}
+              </div>
+              <Trophy className="absolute top-6 right-10 w-8 h-8 text-yellow-400 animate-pulse" />
+              <div className="text-yellow-400 font-black text-6xl mb-4 italic drop-shadow-2xl">#1</div>
+              <h3 className="text-2xl font-black text-white uppercase mb-6 tracking-tight">{top3[0].name}</h3>
+              <div className="inline-block px-8 py-4 bg-yellow-400 text-black rounded-full font-black text-sm shadow-xl shadow-yellow-400/20">
+                ${top3[0].balance}
+              </div>
+            </div>
+          )}
+
+          {/* 3rd Place */}
+          {top3[2] && (
+            <div className="order-3 md:order-3 bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[3rem] text-center relative pt-16 group hover:border-orange-900/30 transition-all">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-zinc-800 border-4 border-orange-800/50 overflow-hidden shadow-2xl">
+                {top3[2].avatar ? <img src={top3[2].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-bold">{top3[2].name[0]}</div>}
+              </div>
+              <div className="text-orange-900 font-black text-4xl mb-2 opacity-40 italic">#3</div>
+              <h3 className="text-lg font-bold text-white uppercase mb-4">{top3[2].name}</h3>
+              <div className="inline-block px-4 py-2 bg-zinc-800/50 rounded-full text-zinc-300 font-bold text-xs border border-white/5">
+                ${top3[2].balance}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Full List */}
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-zinc-900/30 border border-white/5 rounded-[2.5rem] overflow-hidden backdrop-blur-sm">
+            <div className="grid grid-cols-12 p-6 border-b border-white/5 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+              <div className="col-span-1 pl-4">Rank</div>
+              <div className="col-span-7">Student</div>
+              <div className="col-span-2 text-center">Class</div>
+              <div className="col-span-2 text-right pr-4">Balance</div>
+            </div>
+            {others.map((user, idx) => (
+              <div key={user.id} className="grid grid-cols-12 p-8 hover:bg-white/[0.02] transition-colors items-center border-b last:border-0 border-white/5 group">
+                <div className="col-span-1 pl-4 font-black text-xl text-zinc-700 italic group-hover:text-zinc-500 transition-colors">
+                  {idx + 4}
+                </div>
+                <div className="col-span-7 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center font-bold text-sm text-white group-hover:border-yellow-400/50 transition-colors overflow-hidden">
+                    {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name[0]}
+                  </div>
+                  <span className="font-bold text-white uppercase tracking-tight group-hover:text-yellow-400 transition-colors">{user.name}</span>
+                </div>
+                <div className="col-span-2 text-center">
+                  <span className="text-[10px] bg-zinc-800 text-zinc-500 px-3 py-1.5 rounded-lg border border-white/5 font-bold uppercase">{user.grade || 'N/A'}</span>
+                </div>
+                <div className="col-span-2 text-right pr-4 font-black text-white tabular-nums">
+                  ${user.balance}
+                </div>
+              </div>
+            ))}
+            {sortedUsers.length === 0 && (
+              <div className="py-20 text-center">
+                <div className="text-zinc-800 text-6xl font-black mb-4 uppercase tracking-tighter">No Glory</div>
+                <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">Waiting for legends to rise</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     );
   };
