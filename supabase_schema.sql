@@ -53,11 +53,31 @@ ALTER TABLE public.grades ENABLE ROW LEVEL SECURITY;
 -- 6. Create basic policies
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
 CREATE POLICY "Users can view their own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
-DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
-CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
-);
+-- 13. Safety Functions for RLS
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- 6. Updated Policies with Safety Functions
+DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
+CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can view all transactions" ON public.transactions;
+CREATE POLICY "Admins can view all transactions" ON public.transactions FOR SELECT USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can view all grades" ON public.grades;
+CREATE POLICY "Admins can view all grades" ON public.grades FOR SELECT USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can insert grades" ON public.grades;
+CREATE POLICY "Admins can insert grades" ON public.grades FOR INSERT TO authenticated WITH CHECK (public.is_admin());
+
+-- Core User Policies (Idempotent)
 DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
@@ -66,38 +86,25 @@ CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE
 
 DROP POLICY IF EXISTS "Users can view their own transactions" ON public.transactions;
 CREATE POLICY "Users can view their own transactions" ON public.transactions FOR SELECT USING (auth.uid() = user_id);
-DROP POLICY IF EXISTS "Admins can view all transactions" ON public.transactions;
-CREATE POLICY "Admins can view all transactions" ON public.transactions FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
-);
 
 DROP POLICY IF EXISTS "Users can record their own transactions" ON public.transactions;
-CREATE POLICY "Users can record their own transactions" ON public.transactions FOR INSERT TO authenticated 
-WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can record their own transactions" ON public.transactions FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
 DROP POLICY IF EXISTS "Users can view their own grades" ON public.grades;
 CREATE POLICY "Users can view their own grades" ON public.grades FOR SELECT USING (auth.uid() = user_id);
-DROP POLICY IF EXISTS "Admins can view all grades" ON public.grades;
-CREATE POLICY "Admins can view all grades" ON public.grades FOR SELECT USING (
-  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
-);
 
 DROP POLICY IF EXISTS "Everyone can view missions" ON public.missions;
 CREATE POLICY "Everyone can view missions" ON public.missions FOR SELECT TO authenticated USING (true);
 
--- 7. Mission Management (Admin only)
 DROP POLICY IF EXISTS "Admins can insert missions" ON public.missions;
-CREATE POLICY "Admins can insert missions" ON public.missions FOR INSERT TO authenticated 
-WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "Admins can insert missions" ON public.missions FOR INSERT TO authenticated WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Admins can update missions" ON public.missions;
-CREATE POLICY "Admins can update missions" ON public.missions FOR UPDATE TO authenticated 
-USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "Admins can update missions" ON public.missions FOR UPDATE TO authenticated USING (public.is_admin());
 
--- 8. Transaction Management (Additional)
 DROP POLICY IF EXISTS "Teachers can reward students" ON public.transactions;
 CREATE POLICY "Teachers can reward students" ON public.transactions FOR INSERT TO authenticated 
-WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('teacher', 'admin')));
+WITH CHECK (public.is_admin() OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'teacher'));
 
 -- 8. Profile sync trigger function
 CREATE OR REPLACE FUNCTION public.handle_new_user()
