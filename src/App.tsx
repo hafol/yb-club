@@ -8,7 +8,8 @@ import { Session } from '@supabase/supabase-js';
 import { 
   Users, Calendar, LogOut, Search, BookOpen, Award, DollarSign,
   Bell, ChevronRight, LayoutDashboard, Database, Trophy,
-  ShieldCheck, ArrowUpRight, ArrowDownRight
+  ShieldCheck, ArrowUpRight, ArrowDownRight,
+  Sun, Moon, Wallet, Target, GraduationCap
 } from 'lucide-react';
 
 import cashIcon from './assets/dashboard/cash.png';
@@ -79,6 +80,20 @@ function App() {
   const [newGrade, setNewGrade] = useState({ subject: '', score: 0, comment: '' });
   const [newMission, setNewMission] = useState({ title: '', description: '', reward: 0, deadline: '' });
   const [animatedBalance, setAnimatedBalance] = useState(0);
+
+  // Theme State
+  const [theme, setTheme] = useState<'dark' | 'light'>(
+    (localStorage.getItem('theme') as 'dark' | 'light') || 'dark'
+  );
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('theme-light');
+    } else {
+      document.documentElement.classList.remove('theme-light');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
   
   // Avatar Upload State
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -548,16 +563,16 @@ function App() {
               <button
                 key={item.id}
                 onClick={() => setCurrentPage(item.id as any)}
-                className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 group
+                className={`w-full flex items-center gap-4 px-4 py-4 rounded-l-none rounded-r-xl transition-all duration-300 group relative
                   ${isActive 
-                    ? 'bg-zinc-800/50 text-yellow-400' 
+                    ? 'text-white' 
                     : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-200'}`}
               >
-                <div className={`p-2 rounded-lg transition-colors ${isActive ? 'bg-yellow-400/10' : 'group-hover:bg-white/5'}`}>
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-yellow-400' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+                {isActive && <div className="absolute left-0 w-[3px] h-8 bg-yellow-400 rounded-full shadow-[0_0_10px_rgba(250,204,21,0.8)] keep-colors" />}
+                <div className={`p-2 rounded-lg transition-all duration-300 ${isActive ? 'bg-white/5 backdrop-blur-md shadow-inner border border-white/5' : 'group-hover:bg-white/5'}`}>
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-yellow-400 keep-colors' : 'text-zinc-500 group-hover:text-zinc-300'}`} strokeWidth={isActive ? 1.5 : 1.25} />
                 </div>
-                <span className="font-medium text-sm tracking-wide">{item.label}</span>
-                {isActive && <div className="ml-auto w-1 h-5 bg-yellow-400 rounded-full" />}
+                <span className={`font-medium text-sm tracking-wide transition-all ${isActive ? 'text-white font-bold' : ''}`}>{item.label}</span>
               </button>
             );
           })}
@@ -717,133 +732,143 @@ function App() {
         {/* Header Section */}
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <h1 className="text-5xl font-bold text-white tracking-tight">
-              {t('greetings')}, <span className="text-yellow-400">{currentUser?.name.split(' ')[0]}</span>
+            <h1 className="text-4xl font-medium text-white tracking-tight flex items-baseline gap-2">
+              <span className="font-light text-zinc-400">{t('greetings')},</span>
+              <span>{currentUser?.name.split(' ')[0]}</span>
             </h1>
-            <p className="text-zinc-500 mt-2 text-base font-medium flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
-              {t('clubTagline')} • <span className="text-zinc-400 capitalize">{new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+            <p className="text-zinc-500 mt-2 text-[10px] font-bold tracking-[0.2em] uppercase flex items-center gap-3">
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full shadow-[0_0_10px_rgba(250,204,21,0.5)] keep-colors" />
+                {t('clubTagline')}
+              </span>
+              <span className="text-zinc-700">•</span>
+              <span className="text-zinc-400 keep-colors">{new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
             </p>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
              <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-yellow-400 transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-yellow-400 transition-colors keep-colors" />
                 <input 
                   type="text" 
                   placeholder={t('searchPlaceholder')} 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-zinc-900 border border-zinc-800 rounded-xl pl-12 pr-6 py-3 w-72 focus:outline-none focus:border-yellow-400/50 focus:w-80 transition-all text-sm font-medium text-white"
+                  className="bg-zinc-950/50 border border-white/5 rounded-full pl-12 pr-6 py-2.5 w-64 focus:outline-none focus:border-yellow-400/30 focus:bg-zinc-900 focus:w-80 transition-all text-sm font-medium text-white shadow-inner"
                 />
              </div>
              <button 
                 onClick={() => setShowMessagesModal(true)}
-                className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-500 hover:text-yellow-400 hover:border-yellow-400/30 transition-all relative group"
+                className="w-10 h-10 flex items-center justify-center bg-zinc-950/50 border border-white/5 rounded-full text-zinc-500 hover:text-white hover:border-white/10 transition-all relative group shadow-inner"
              >
-                <Bell className="w-5 h-5 group-hover:animate-bounce" />
+                <Bell className="w-4 h-4 group-hover:animate-bounce keep-colors" strokeWidth={1.5} />
                 {messages.some(m => !m.is_read) && (
-                  <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-yellow-400 rounded-full ring-4 ring-zinc-900 animate-pulse" />
+                  <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-yellow-400 rounded-full ring-4 ring-zinc-950 animate-pulse keep-colors" />
                 )}
              </button>
-             <div className="ml-2 scale-90 origin-right">
+             <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="w-10 h-10 flex items-center justify-center bg-zinc-950/50 border border-white/5 rounded-full text-zinc-500 hover:text-white hover:border-white/10 transition-all group shadow-inner"
+                title={t('toggleTheme') || 'Toggle Theme'}
+             >
+                {theme === 'dark' ? <Sun className="w-4 h-4 group-hover:rotate-90 transition-transform keep-colors" strokeWidth={1.5} /> : <Moon className="w-4 h-4 group-hover:-rotate-12 transition-transform keep-colors" strokeWidth={1.5} />}
+             </button>
+             <div className="ml-1 scale-90 origin-right">
                 <LanguageSwitcher />
              </div>
           </div>
         </header>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Capital Resources */}
-          <div className="group relative bg-zinc-900 border border-zinc-800 p-8 rounded-3xl transition-all duration-300 hover:border-yellow-400/20 shadow-sm flex flex-col justify-between min-h-[220px]">
-            <div className="flex justify-between items-start">
-              <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
-                <img src={cashIcon} alt="" className="w-10 h-10 object-contain" />
+        {/* Premium Bento Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          
+          {/* Capital Resources - Wide Hero Card */}
+          <div className="col-span-1 md:col-span-12 lg:col-span-6 group relative bg-gradient-to-br from-zinc-900 to-black border border-white/5 p-8 rounded-[2.5rem] transition-all duration-500 hover:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden flex flex-col justify-between min-h-[260px]">
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-yellow-400/5 blur-[120px] rounded-full pointer-events-none group-hover:bg-yellow-400/10 transition-all duration-1000 translate-x-1/3 -translate-y-1/3 keep-colors" />
+            
+            <div className="flex justify-between items-start relative z-10">
+              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/5 backdrop-blur-xl group-hover:scale-110 transition-transform duration-500 shadow-xl">
+                <Wallet className="w-6 h-6 text-yellow-400 keep-colors" strokeWidth={1.25} />
               </div>
               <div className="text-right">
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">{t('currentBalance')}</div>
-                <div className="flex items-center gap-1 text-green-400 text-[10px] font-bold mt-2 bg-green-400/5 px-2 py-1 rounded-md border border-green-400/10">
-                  <ArrowUpRight className="w-3 h-3" /> 2.4%
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">{t('currentBalance')}</div>
+                <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] font-bold mt-2 bg-emerald-400/10 px-2.5 py-1 rounded-lg border border-emerald-400/20 keep-colors backdrop-blur-md">
+                  <ArrowUpRight className="w-3 h-3" strokeWidth={2.5} /> +2.4%
                 </div>
               </div>
             </div>
-            <div>
+            
+            <div className="relative z-10 mt-8 mb-2">
               <div className="flex items-baseline gap-2">
-                <span className="text-zinc-600 font-bold text-xl uppercase">YB</span>
-                <span className="text-5xl font-bold text-white tracking-tight tabular-nums">
-                  ${animatedBalance}
+                <span className="text-yellow-400/50 font-bold text-3xl uppercase tracking-widest keep-colors">$</span>
+                <span className="text-7xl font-light text-white tracking-tighter tabular-nums drop-shadow-2xl">
+                  {animatedBalance.toLocaleString()}
                 </span>
+                <span className="text-zinc-600 font-bold text-[10px] uppercase tracking-[0.3em] ml-2">YBD Token</span>
               </div>
             </div>
           </div>
 
           {/* Academic Performance */}
-          <div className="group relative bg-zinc-900 border border-zinc-800 p-8 rounded-3xl transition-all duration-300 hover:border-green-400/20 shadow-sm flex flex-col justify-between min-h-[220px]">
+          <div className="col-span-1 md:col-span-6 lg:col-span-3 group relative bg-zinc-900 border border-white/5 p-8 rounded-[2.5rem] transition-all duration-300 hover:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] flex flex-col justify-between min-h-[260px]">
             <div className="flex justify-between items-start">
-              <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
-                <img src={profilesIcon} alt="" className="w-10 h-10 object-contain" />
+              <div className="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors border border-white/5 shadow-inner">
+                <GraduationCap className="w-5 h-5 text-white" strokeWidth={1.25} />
               </div>
               <div className="text-right">
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">{t('academicPerf')}</div>
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] max-w-[90px] leading-relaxed">{t('academicPerf')}</div>
               </div>
             </div>
-            <div>
-              <div className="text-5xl font-bold text-white tracking-tight tabular-nums mb-4">
-                {grades.length > 0 ? (grades.reduce((acc, g) => acc + g.score, 0) / grades.length).toFixed(1) : '0.0'} <span className="text-xl text-zinc-600">%</span>
+            <div className="mt-8">
+              <div className="text-5xl font-light text-white tracking-tight tabular-nums mb-6 flex items-baseline gap-1">
+                {grades.length > 0 ? (grades.reduce((acc, g) => acc + g.score, 0) / grades.length).toFixed(1) : '0.0'} 
+                <span className="text-xl font-medium text-zinc-600">%</span>
               </div>
-              <div className="space-y-2">
-                <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                  <div className={`h-full bg-green-400 transition-all duration-1000`} style={{ width: `${grades.length > 0 ? (grades.reduce((acc, g) => acc + g.score, 0) / grades.length) : 0}%` }} />
+              <div className="space-y-3">
+                <div className="w-full h-1 bg-zinc-800 rounded-full overflow-hidden">
+                  <div className={`h-full bg-white transition-all duration-1000`} style={{ width: `${grades.length > 0 ? (grades.reduce((acc, g) => acc + g.score, 0) / grades.length) : 0}%` }} />
                 </div>
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest text-right">{grades.length > 0 ? t('verified') : t('noData')}</div>
+                <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em]">{grades.length > 0 ? t('verified') : t('noData')}</div>
               </div>
             </div>
           </div>
 
-          {/* Active Missions */}
-          <div className="group relative bg-zinc-900 border border-zinc-800 p-8 rounded-3xl transition-all duration-300 hover:border-zinc-700 shadow-sm flex flex-col justify-between min-h-[220px]">
-             <div className="flex justify-between items-start">
-              <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
-                <img src={missionsIcon} alt="" className="w-10 h-10 object-contain" />
-              </div>
-              <div className="text-right">
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px]">{t('activeMissions')}</div>
-              </div>
-            </div>
-            <div>
-              <div className="text-5xl font-bold text-white tracking-tight">
-                {transactions.filter(t => t.mission_id).length.toString().padStart(2, '0')} <span className="text-xl text-zinc-600">{t('total')}</span>
-              </div>
-              <div className="text-[10px] text-yellow-400 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
-                {transactions.filter(t => t.mission_id).length} {t('completedChallenges')}
-              </div>
-            </div>
+          {/* Configuration/Status Stack */}
+          <div className="col-span-1 md:col-span-6 lg:col-span-3 flex flex-col gap-6 min-h-[260px]">
+             
+             {/* Missions Mini-card */}
+             <div className="flex-1 group relative bg-zinc-900 border border-white/5 p-6 rounded-[2rem] transition-all duration-300 hover:border-white/10 flex items-center gap-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] overflow-hidden">
+                <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-yellow-400/5 to-transparent keep-colors" />
+                <div className="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center shrink-0 border border-white/5">
+                  <Target className="w-5 h-5 text-yellow-400 keep-colors" strokeWidth={1.25} />
+                </div>
+                <div className="relative z-10 w-full">
+                  <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em] mb-1">{t('activeMissions')}</div>
+                  <div className="text-3xl font-light text-white flex items-baseline justify-between w-full">
+                    {transactions.filter(t => t.mission_id).length.toString().padStart(2, '0')}
+                    <span className="text-[9px] text-yellow-400/80 font-bold uppercase tracking-[0.2em] keep-colors bg-yellow-400/10 px-2 py-1 rounded-md">{t('completedChallenges')}</span>
+                  </div>
+                </div>
+             </div>
+             
+             {/* Status Mini-card */}
+             <div className="flex-1 group relative bg-zinc-900 border border-white/5 p-6 rounded-[2rem] transition-all duration-300 hover:border-white/10 flex items-center gap-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+                <div className="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center shrink-0 border border-white/5">
+                  <ShieldCheck className="w-5 h-5 text-emerald-400 keep-colors" strokeWidth={1.25} />
+                </div>
+                <div className="w-full">
+                  <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em] mb-1">{t('rank')}</div>
+                  <div className="text-xl font-medium text-white flex justify-between items-baseline w-full">
+                    {currentUser?.role === 'admin' ? t('premium') : t('active')}
+                    <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-[0.2em] keep-colors bg-emerald-400/10 px-2 py-1 rounded-md">
+                      {currentUser?.role === 'admin' ? t('administrator') : t('verifiedMember')}
+                    </span>
+                  </div>
+                </div>
+             </div>
+             
           </div>
 
-          {/* Club Status */}
-          <div className="group relative bg-zinc-900 border border-zinc-800 p-8 rounded-3xl transition-all duration-300 hover:border-zinc-700 shadow-sm flex flex-col justify-between min-h-[220px]">
-            <div className="flex justify-between items-start">
-              <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
-                <img src={medalIcon} alt="" className="w-10 h-10 object-contain" />
-              </div>
-              <div className="text-right flex flex-col items-end">
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px] mb-2">{t('rank')}</div>
-                <div className="text-[9px] font-bold bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full uppercase tracking-widest border border-zinc-700">
-                  {currentUser?.role === 'admin' ? t('elite') : t('member')}
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className="text-5xl font-bold text-white tracking-tight">
-                {currentUser?.role === 'admin' ? t('premium') : t('active')}
-              </div>
-              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-zinc-600" />
-                {currentUser?.role === 'admin' ? t('administrator') : t('verifiedMember')}
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Content Layout */}

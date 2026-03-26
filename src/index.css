@@ -28,3 +28,15 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(250, 204, 21, 0.3);
 }
+
+/* Light Theme Invert Strategy for Zero-Bug Theme Switch */
+html.theme-light {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Double-invert media and specific areas to keep original colors */
+html.theme-light img,
+html.theme-light video,
+html.theme-light .keep-colors {
+  filter: invert(1) hue-rotate(180deg);
+}
