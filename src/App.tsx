@@ -731,38 +731,38 @@ function App() {
 
   const renderDashboard = () => {
     return (
-      <div className="p-8 space-y-8 max-w-[1600px] mx-auto">
+      <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-[1600px] mx-auto">
         {/* Header Section */}
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-medium text-white tracking-tight flex items-baseline gap-2">
+            <h1 className="text-2xl md:text-4xl font-medium text-white tracking-tight flex flex-wrap items-baseline gap-1 md:gap-2">
               <span className="font-light text-zinc-400">{t('greetings')},</span>
               <span>{currentUser?.name.split(' ')[0]}</span>
             </h1>
-            <p className="text-zinc-500 mt-2 text-[10px] font-bold tracking-[0.2em] uppercase flex items-center gap-3">
+            <p className="text-zinc-500 mt-2 text-[9px] md:text-[10px] font-bold tracking-[0.15em] md:tracking-[0.2em] uppercase flex flex-wrap items-center gap-2 md:gap-3">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full shadow-[0_0_10px_rgba(250,204,21,0.5)] keep-colors" />
                 {t('clubTagline')}
               </span>
-              <span className="text-zinc-700">•</span>
-              <span className="text-zinc-400 keep-colors">{new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              <span className="text-zinc-700 hidden sm:inline">•</span>
+              <span className="text-zinc-400 keep-colors hidden sm:inline">{new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
             </p>
           </div>
           
-          <div className="flex items-center gap-3">
-             <div className="relative group">
+          <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+             <div className="relative group hidden sm:block">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-yellow-400 transition-colors keep-colors" />
                 <input 
                   type="text" 
                   placeholder={t('searchPlaceholder')} 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-zinc-950/50 border border-white/5 rounded-full pl-12 pr-6 py-2.5 w-64 focus:outline-none focus:border-yellow-400/30 focus:bg-zinc-900 focus:w-80 transition-all text-sm font-medium text-white shadow-inner"
+                  className="bg-zinc-950/50 border border-white/5 rounded-full pl-12 pr-6 py-2.5 w-48 lg:w-64 focus:outline-none focus:border-yellow-400/30 focus:bg-zinc-900 lg:focus:w-80 transition-all text-sm font-medium text-white shadow-inner"
                 />
              </div>
              <button 
                 onClick={() => setShowMessagesModal(true)}
-                className="w-10 h-10 flex items-center justify-center bg-zinc-950/50 border border-white/5 rounded-full text-zinc-500 hover:text-white hover:border-white/10 transition-all relative group shadow-inner"
+                className="w-10 h-10 flex items-center justify-center bg-zinc-950/50 border border-white/5 rounded-full text-zinc-500 hover:text-white hover:border-white/10 transition-all relative group shadow-inner shrink-0"
              >
                 <Bell className="w-4 h-4 group-hover:animate-bounce keep-colors" strokeWidth={1.5} />
                 {messages.some(m => !m.is_read) && (
@@ -771,12 +771,12 @@ function App() {
              </button>
              <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="w-10 h-10 flex items-center justify-center bg-zinc-950/50 border border-white/5 rounded-full text-zinc-500 hover:text-white hover:border-white/10 transition-all group shadow-inner"
+                className="w-10 h-10 flex items-center justify-center bg-zinc-950/50 border border-white/5 rounded-full text-zinc-500 hover:text-white hover:border-white/10 transition-all group shadow-inner shrink-0"
                 title={t('toggleTheme') || 'Toggle Theme'}
              >
                 {theme === 'dark' ? <Sun className="w-4 h-4 group-hover:rotate-90 transition-transform keep-colors" strokeWidth={1.5} /> : <Moon className="w-4 h-4 group-hover:-rotate-12 transition-transform keep-colors" strokeWidth={1.5} />}
              </button>
-             <div className="ml-1 scale-90 origin-right">
+             <div className="scale-90 origin-right shrink-0">
                 <LanguageSwitcher />
              </div>
           </div>
@@ -786,7 +786,7 @@ function App() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           
           {/* Capital Resources - Wide Hero Card */}
-          <div className="col-span-1 md:col-span-12 lg:col-span-6 group relative bg-gradient-to-br from-zinc-900 to-black border border-white/5 p-8 rounded-[2.5rem] transition-all duration-500 hover:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden flex flex-col justify-between min-h-[260px]">
+          <div className="col-span-1 md:col-span-12 lg:col-span-6 group relative bg-gradient-to-br from-zinc-900 to-black border border-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] transition-all duration-500 hover:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden flex flex-col justify-between min-h-[200px] md:min-h-[260px]">
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-yellow-400/5 blur-[120px] rounded-full pointer-events-none group-hover:bg-yellow-400/10 transition-all duration-1000 translate-x-1/3 -translate-y-1/3 keep-colors" />
             
             <div className="flex justify-between items-start relative z-10">
@@ -803,17 +803,17 @@ function App() {
             
             <div className="relative z-10 mt-8 mb-2">
               <div className="flex items-baseline gap-2">
-                <span className="text-yellow-400/50 font-bold text-3xl uppercase tracking-widest keep-colors">$</span>
-                <span className="text-7xl font-light text-white tracking-tighter tabular-nums drop-shadow-2xl">
+                <span className="text-yellow-400/50 font-bold text-xl md:text-3xl uppercase tracking-widest keep-colors">$</span>
+                <span className="text-4xl md:text-7xl font-light text-white tracking-tighter tabular-nums drop-shadow-2xl">
                   {animatedBalance.toLocaleString()}
                 </span>
-                <span className="text-zinc-600 font-bold text-[10px] uppercase tracking-[0.3em] ml-2">YBD Token</span>
+                <span className="text-zinc-600 font-bold text-[9px] md:text-[10px] uppercase tracking-[0.2em] md:tracking-[0.3em] ml-1 md:ml-2">YBD</span>
               </div>
             </div>
           </div>
 
           {/* Academic Performance */}
-          <div className="col-span-1 md:col-span-6 lg:col-span-3 group relative bg-zinc-900 border border-white/5 p-8 rounded-[2.5rem] transition-all duration-300 hover:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] flex flex-col justify-between min-h-[260px]">
+          <div className="col-span-1 md:col-span-6 lg:col-span-3 group relative bg-zinc-900 border border-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] transition-all duration-300 hover:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] flex flex-col justify-between min-h-[200px] md:min-h-[260px]">
             <div className="flex justify-between items-start">
               <div className="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors border border-white/5 shadow-inner">
                 <GraduationCap className="w-5 h-5 text-white" strokeWidth={1.25} />
@@ -823,7 +823,7 @@ function App() {
               </div>
             </div>
             <div className="mt-8">
-              <div className="text-5xl font-light text-white tracking-tight tabular-nums mb-6 flex items-baseline gap-1">
+              <div className="text-4xl md:text-5xl font-light text-white tracking-tight tabular-nums mb-4 md:mb-6 flex items-baseline gap-1">
                 {grades.length > 0 ? (grades.reduce((acc, g) => acc + g.score, 0) / grades.length).toFixed(1) : '0.0'} 
                 <span className="text-xl font-medium text-zinc-600">%</span>
               </div>
@@ -875,15 +875,15 @@ function App() {
         </div>
 
         {/* Content Layout */}
-        <div className="grid grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
           {/* Main Column */}
-          <div className="col-span-12 lg:col-span-8 space-y-8">
+          <div className="col-span-1 lg:col-span-8 space-y-6 md:space-y-8">
             <section>
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="w-1.5 h-8 bg-yellow-400 rounded-full" />
                   <div>
-                    <h2 className="text-2xl font-bold text-white uppercase tracking-tight">{t('availableMissions')}</h2>
+                    <h2 className="text-xl md:text-2xl font-bold text-white uppercase tracking-tight">{t('availableMissions')}</h2>
                     <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-[2px]">{t('missionsDesc')}</p>
                   </div>
                 </div>
@@ -896,21 +896,21 @@ function App() {
                 {cases
                   .filter(m => !transactions.some(t => t.mission_id === parseInt(m.id)))
                   .map((mission, idx) => (
-                  <div key={idx} className="bg-zinc-900/50 border border-zinc-800 rounded-[2rem] p-10 group relative transition-all duration-300 hover:border-yellow-400/20">
-                    <div className="flex justify-between items-start gap-6">
+                  <div key={idx} className="bg-zinc-900/50 border border-zinc-800 rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-10 group relative transition-all duration-300 hover:border-yellow-400/20">
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-4 md:gap-6">
                       <div className="flex-1 space-y-4">
                         <div className="flex items-center gap-3">
                           <span className="text-[9px] font-bold bg-yellow-400/10 text-yellow-400 px-3 py-1 rounded-full uppercase tracking-widest border border-yellow-400/10">
                             {t('strategic')}
                           </span>
                         </div>
-                        <h3 className="text-3xl font-bold text-white group-hover:text-yellow-400 transition-colors leading-tight">{mission.title}</h3>
-                        <p className="text-zinc-500 text-base leading-relaxed line-clamp-2 max-w-2xl">{mission.description}</p>
+                        <h3 className="text-xl md:text-3xl font-bold text-white group-hover:text-yellow-400 transition-colors leading-tight">{mission.title}</h3>
+                        <p className="text-zinc-500 text-sm md:text-base leading-relaxed line-clamp-2 max-w-2xl">{mission.description}</p>
                       </div>
-                      <div className="text-right flex flex-col justify-between items-end min-h-[140px]">
+                      <div className="w-full md:w-auto text-left md:text-right flex flex-row md:flex-col justify-between items-center md:items-end md:min-h-[140px] pt-3 md:pt-0 border-t md:border-0 border-white/5">
                         <div>
                           <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest mb-1">{t('reward')}</div>
-                          <div className="text-4xl font-bold text-white tabular-nums tracking-tight">+${mission.reward}</div>
+                          <div className="text-2xl md:text-4xl font-bold text-white tabular-nums tracking-tight">+${mission.reward}</div>
                         </div>
                         <div className="space-y-4">
                           <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest flex items-center justify-end gap-2">
@@ -933,8 +933,8 @@ function App() {
           </div>
 
           {/* Activity Column */}
-          <div className="col-span-12 lg:col-span-4 space-y-8">
-            <section className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-8 h-full shadow-sm relative overflow-hidden">
+          <div className="col-span-1 lg:col-span-4 space-y-6 md:space-y-8">
+            <section className="bg-zinc-900 border border-zinc-800 rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 h-full shadow-sm relative overflow-hidden">
                <div className="flex items-center justify-between mb-8">
                   <h2 className="text-xl font-bold text-white uppercase tracking-tight">{t('activityFeed')}</h2>
                   <div className="flex items-center gap-2">
