@@ -1051,36 +1051,44 @@ function App() {
     
     return (
       <div className="flex min-h-screen bg-black text-white selection:bg-yellow-400 selection:text-black font-sans w-full overflow-hidden">
-        {/* Mobile App Bar */}
-        <div className="lg:hidden fixed top-0 w-full h-16 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 z-[60] flex items-center justify-between px-6 shadow-sm">
+        {/* Mobile App Bar - only visible on small screens */}
+        <div className="fixed top-0 left-0 right-0 h-16 bg-zinc-950/90 backdrop-blur-xl border-b border-white/5 z-[60] flex items-center justify-between px-5 shadow-lg lg:hidden">
            <div className="flex items-center gap-3">
-             <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center border border-white/10 keep-colors shadow-inner">
-               <img src={logo} className="w-6 h-6 object-cover" />
+             <div className="w-9 h-9 bg-zinc-900 rounded-xl flex items-center justify-center border border-white/10 shadow-inner overflow-hidden">
+               <img src={logo} className="w-7 h-7 object-cover" />
              </div>
-             <span className="font-bold text-white tracking-widest uppercase text-sm">YB Club</span>
+             <span className="font-black text-white tracking-wider uppercase text-sm">YB Club</span>
            </div>
            
            <button 
              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-             className="text-zinc-400 hover:text-white transition-colors"
+             className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-900 border border-white/10 text-zinc-400 hover:text-white transition-colors"
            >
-             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
            </button>
         </div>
 
-        {/* Mobile Backdrop & Sidebar Container */}
+        {/* Mobile Drawer Overlay - only when open */}
         {isMobileMenuOpen && (
-           <div 
-             className="fixed inset-0 bg-black/60 backdrop-blur-md z-[70] lg:hidden animate-in fade-in duration-300" 
-             onClick={() => setIsMobileMenuOpen(false)} 
-           />
+          <div className="fixed inset-0 z-[70] lg:hidden">
+            {/* Dark backdrop */}
+            <div 
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm" 
+              onClick={() => setIsMobileMenuOpen(false)} 
+            />
+            {/* Sidebar drawer */}
+            <div className="absolute inset-y-0 left-0 z-10 w-72">
+              <Sidebar role={currentRole} onClose={() => setIsMobileMenuOpen(false)} />
+            </div>
+          </div>
         )}
 
-        <div className={`fixed inset-y-0 left-0 z-[80] transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] lg:relative lg:translate-x-0`}>
-          <Sidebar role={currentRole} onClose={() => setIsMobileMenuOpen(false)} />
+        {/* Desktop Sidebar - always visible on lg+ screens, hidden on mobile */}
+        <div className="hidden lg:block">
+          <Sidebar role={currentRole} />
         </div>
         
-        <main className="flex-1 overflow-x-hidden relative bg-[#050505] pt-16 lg:pt-0 w-full max-w-[100vw]">
+        <main className="flex-1 overflow-x-hidden relative bg-[#050505] pt-16 lg:pt-0 w-full min-w-0">
           <div className="relative">
             {currentPage === 'dashboard' && renderDashboard()}
             {currentPage === 'grades' && renderGrades()}
