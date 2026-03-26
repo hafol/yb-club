@@ -847,9 +847,9 @@ function App() {
                 </div>
                 <div className="relative z-10 w-full">
                   <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em] mb-1">{t('activeMissions')}</div>
-                  <div className="text-3xl font-light text-white flex items-baseline justify-between w-full">
-                    {transactions.filter(t => t.mission_id).length.toString().padStart(2, '0')}
-                    <span className="text-[9px] text-yellow-400/80 font-bold uppercase tracking-[0.2em] keep-colors bg-yellow-400/10 px-2 py-1 rounded-md">{t('completedChallenges')}</span>
+                  <div className="text-3xl font-light text-white flex items-center justify-between w-full gap-3">
+                    <span>{transactions.filter(t => t.mission_id).length.toString().padStart(2, '0')}</span>
+                    <span className="text-[8px] md:text-[9px] text-yellow-500 font-black uppercase tracking-wider keep-colors bg-yellow-400/10 px-2.5 py-1.5 rounded-lg text-right leading-tight max-w-[130px] whitespace-normal flex-shrink-0 break-words">{t('completedChallenges')}</span>
                   </div>
                 </div>
              </div>
@@ -861,9 +861,9 @@ function App() {
                 </div>
                 <div className="w-full">
                   <div className="text-[9px] text-zinc-500 font-bold uppercase tracking-[0.2em] mb-1">{t('rank')}</div>
-                  <div className="text-xl font-medium text-white flex justify-between items-baseline w-full">
-                    {currentUser?.role === 'admin' ? t('premium') : t('active')}
-                    <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-[0.2em] keep-colors bg-emerald-400/10 px-2 py-1 rounded-md">
+                  <div className="text-xl font-medium text-white flex flex-row items-center justify-between w-full gap-3">
+                    <span className="truncate">{currentUser?.role === 'admin' ? t('premium') : t('active')}</span>
+                    <span className="text-[8px] md:text-[9px] text-emerald-500 font-black uppercase tracking-wider keep-colors bg-emerald-400/10 px-2.5 py-1.5 rounded-lg text-right leading-tight max-w-[130px] whitespace-normal flex-shrink-0 break-words">
                       {currentUser?.role === 'admin' ? t('administrator') : t('verifiedMember')}
                     </span>
                   </div>
