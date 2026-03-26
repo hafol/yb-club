@@ -15,6 +15,7 @@ import cashIcon from './assets/dashboard/cash.png';
 import profilesIcon from './assets/dashboard/profiles.png';
 import missionsIcon from './assets/dashboard/missions.png';
 import medalIcon from './assets/dashboard/medal.png';
+import logo from './assets/apple-touch-icon.png';
 
 interface UserData {
   id: string;
@@ -144,9 +145,7 @@ function App() {
     fetchMissions();
     fetchTransactions(session.user.id);
     fetchGrades(session.user.id);
-    if (userRole === 'admin') {
-      fetchUsers();
-    }
+    fetchUsers();
 
     // Subscribe to balance changes
     const channel = supabase
@@ -409,8 +408,8 @@ function App() {
       <aside className="w-72 bg-zinc-950/50 backdrop-blur-3xl border-r border-white/5 h-screen flex flex-col sticky top-0 overflow-hidden">
         <div className="p-8">
           <div className="flex items-center gap-4 group cursor-pointer">
-            <div className="w-12 h-12 bg-gradient-to-tr from-amber-400 via-orange-500 to-amber-600 rounded-3xl flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform duration-500">
-              <span className="text-zinc-950 font-black text-2xl drop-shadow-sm">Y</span>
+            <div className="w-12 h-12 bg-zinc-900 rounded-xl flex items-center justify-center shadow-lg shadow-black/50 group-hover:scale-105 transition-transform duration-500 overflow-hidden border border-white/10">
+              <img src={logo} className="w-full h-full object-cover" />
             </div>
             <div>
               <div className="font-black text-2xl text-white tracking-tighter leading-none">YB CLUB</div>

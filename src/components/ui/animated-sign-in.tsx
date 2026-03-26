@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
+import logo from "../../assets/apple-touch-icon.png";
 import { supabase } from "../../lib/supabase";
 
 const LoginPage: React.FC = () => {
@@ -62,8 +63,8 @@ const LoginPage: React.FC = () => {
 
       <div className="w-full max-w-md relative z-10 animate-fade-in-up">
         <div className="bg-[#0D1117]/80 backdrop-blur-2xl p-10 rounded-[2.5rem] border border-[#1F2937] shadow-2xl relative">
-          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-gradient-to-tr from-[#F5A623] to-[#FF8C00] rounded-3xl rotate-12 flex items-center justify-center shadow-lg transform hover:rotate-0 transition-transform duration-500">
-            <ShieldCheck size={48} className="text-white -rotate-12" />
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-zinc-900 rounded-3xl rotate-12 flex items-center justify-center shadow-lg transform hover:rotate-0 transition-transform duration-500 overflow-hidden border border-[#1F2937] group">
+            <img src={logo} className="w-full h-full object-cover -rotate-12 group-hover:rotate-0 transition-transform" />
           </div>
 
           <div className="text-center mt-10 mb-8">

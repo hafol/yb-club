@@ -66,7 +66,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 6. Updated Policies with Safety Functions
 DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
-CREATE POLICY "Admins can view all profiles" ON public.profiles FOR SELECT USING (public.is_admin());
+CREATE POLICY "Everyone can view all profiles" ON public.profiles FOR SELECT TO authenticated USING (true);
 
 DROP POLICY IF EXISTS "Admins can view all transactions" ON public.transactions;
 CREATE POLICY "Admins can view all transactions" ON public.transactions FOR SELECT USING (public.is_admin());
