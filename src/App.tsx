@@ -66,11 +66,12 @@ function App() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [grades, setGrades] = useState<Grade[]>([]);
   const [cases, setCases] = useState<Case[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<UserData | null>(null);
-  const [newTransactionAmount, setNewTransactionAmount] = useState(100);
-  const [newTransactionReason, setNewTransactionReason] = useState('');
-  const [showAwardModal, setShowAwardModal] = useState(false);
   const [showAddMissionModal, setShowAddMissionModal] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showMessagesModal, setShowMessagesModal] = useState(false);
+  const [showSendMessageModal, setShowSendMessageModal] = useState<{show: boolean, recipientId: string, recipientName: string}>({show: false, recipientId: '', recipientName: ''});
+  const [newMessageContent, setNewMessageContent] = useState('');
   const [showTransactionsModal, setShowTransactionsModal] = useState(false);
   const [showGradingModal, setShowGradingModal] = useState(false);
   const [allUsers, setAllUsers] = useState<UserData[]>([]);
@@ -140,14 +141,22 @@ function App() {
     
     setCurrentUser(user);
     setBalance(user.balance);
-    setCurrentRole(userRole);
-    
+    if (userRole === 'admin') {
+      setCurrentRole('admin');
+    } else {
+      setCurrentRole('student');
+    }
+  };
+
+  useEffect(() => {
+    if (!session?.user) return;
+
     fetchMissions();
     fetchTransactions(session.user.id);
     fetchGrades(session.user.id);
     fetchUsers();
+    fetchMessages(session.user.id);
 
-    // Subscribe to balance changes
     const channel = supabase
       .channel('profile_changes')
       .on(
@@ -169,7 +178,71 @@ function App() {
     return () => {
       supabase.removeChannel(channel);
     };
+  }, [session]);
+
+  const fetchMessages = async (userId: string) => {
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single();
+    
+    let query = supabase
+      .from('personal_messages')
+      .select('*, sender:sender_id(full_name)')
+      .order('created_at', { ascending: false });
+    
+    if (profile?.role !== 'admin') {
+      query = query.eq('recipient_id', userId);
+    }
+    
+    const { data, error } = await query;
+    if (error) console.error('Error fetching messages:', error);
+    else setMessages(data || []);
   };
+
+  const sendMessage = async (recipientId: string, content: string) => {
+    if (!currentUser) return;
+    const { error } = await supabase
+      .from('personal_messages')
+      .insert([{
+        sender_id: currentUser.id,
+        recipient_id: recipientId,
+        content: content
+      }]);
+    
+    if (error) {
+       alert('Error sending message: ' + error.message);
+    } else {
+       alert(t('messageSent') || 'Message sent!');
+       setShowSendMessageModal({show: false, recipientId: '', recipientName: ''});
+       setNewMessageContent('');
+    }
+  };
+
+  const markMessageAsRead = async (messageId: string) => {
+    const { error } = await supabase
+      .from('personal_messages')
+      .update({ is_read: true })
+      .eq('id', messageId);
+    
+    if (error) console.error('Error marking message as read:', error);
+    else {
+      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, is_read: true } : m));
+    }
+  };
+
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return allUsers.filter(u => 
+      u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      u.grade?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [allUsers, searchQuery]);
+
+  const filteredMissions = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return cases.filter(m => 
+      m.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      m.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [cases, searchQuery]);
 
   const fetchMissions = async () => {
     const { data, error } = await supabase
@@ -373,7 +446,6 @@ function App() {
         setBalance(profile.balance);
       }
       fetchTransactions(currentUser.id);
-      setShowAwardModal(false);
       alert('Mission accepted! Reward added to your balance.');
     } else {
       console.error('Error rewarding student:', error);
@@ -607,13 +679,23 @@ function App() {
                 <input 
                   type="text" 
                   placeholder={t('searchPlaceholder')} 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="bg-zinc-900 border border-zinc-800 rounded-xl pl-12 pr-6 py-3 w-72 focus:outline-none focus:border-yellow-400/50 focus:w-80 transition-all text-sm font-medium text-white"
                 />
              </div>
-             <button className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-500 hover:text-yellow-400 hover:border-yellow-400/30 transition-all relative">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-3 right-3 w-2 h-2 bg-yellow-400 rounded-full ring-2 ring-black" />
+             <button 
+                onClick={() => setShowMessagesModal(true)}
+                className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-500 hover:text-yellow-400 hover:border-yellow-400/30 transition-all relative group"
+             >
+                <Bell className="w-5 h-5 group-hover:animate-bounce" />
+                {messages.some(m => !m.is_read) && (
+                  <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-yellow-400 rounded-full ring-4 ring-zinc-900 animate-pulse" />
+                )}
              </button>
+             <div className="ml-2 scale-90 origin-right">
+                <LanguageSwitcher />
+             </div>
           </div>
         </header>
 
@@ -660,7 +742,7 @@ function App() {
                 <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                   <div className={`h-full bg-green-400 transition-all duration-1000`} style={{ width: `${grades.length > 0 ? (grades.reduce((acc, g) => acc + g.score, 0) / grades.length) : 0}%` }} />
                 </div>
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest text-right">{grades.length > 0 ? 'Verified' : 'No Data'}</div>
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest text-right">{grades.length > 0 ? t('verified') : t('noData')}</div>
               </div>
             </div>
           </div>
@@ -677,11 +759,11 @@ function App() {
             </div>
             <div>
               <div className="text-5xl font-bold text-white tracking-tight">
-                {transactions.filter(t => t.mission_id).length.toString().padStart(2, '0')} <span className="text-xl text-zinc-600">Total</span>
+                {transactions.filter(t => t.mission_id).length.toString().padStart(2, '0')} <span className="text-xl text-zinc-600">{t('total')}</span>
               </div>
               <div className="text-[10px] text-yellow-400 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
-                {transactions.filter(t => t.mission_id).length} Completed Challenges
+                {transactions.filter(t => t.mission_id).length} {t('completedChallenges')}
               </div>
             </div>
           </div>
@@ -695,17 +777,17 @@ function App() {
               <div className="text-right flex flex-col items-end">
                 <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px] mb-2">{t('rank')}</div>
                 <div className="text-[9px] font-bold bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full uppercase tracking-widest border border-zinc-700">
-                  {currentUser?.role === 'admin' ? 'Elite' : 'Member'}
+                  {currentUser?.role === 'admin' ? t('elite') : t('member')}
                 </div>
               </div>
             </div>
             <div>
               <div className="text-5xl font-bold text-white tracking-tight">
-                {currentUser?.role === 'admin' ? 'Premium' : 'Active'}
+                {currentUser?.role === 'admin' ? t('premium') : t('active')}
               </div>
               <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-[2px] mt-4 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-zinc-600" />
-                {currentUser?.role === 'admin' ? 'Administrator' : 'Verified Member'}
+                {currentUser?.role === 'admin' ? t('administrator') : t('verifiedMember')}
               </div>
             </div>
           </div>
@@ -795,7 +877,7 @@ function App() {
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider pr-2 truncate">From {tx.createdBy}</p>
+                          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider pr-2 truncate">{t('from')} {tx.createdBy}</p>
                           <p className="text-[10px] text-zinc-600 font-medium shrink-0">{tx.date}</p>
                         </div>
                       </div>
@@ -807,7 +889,7 @@ function App() {
                   onClick={() => setShowTransactionsModal(true)}
                   className="w-full mt-8 py-4 bg-zinc-800 border border-zinc-700 rounded-xl text-[10px] font-bold text-zinc-400 uppercase tracking-[2px] hover:text-white hover:border-zinc-600 transition-all"
                 >
-                  {t('viewFinancialHistory')}
+                  {t('fullAuditLog')}
                 </button>
              </section>
 
@@ -816,7 +898,7 @@ function App() {
                <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
                  <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col max-h-[80vh]">
                    <div className="flex justify-between items-center mb-8">
-                     <h2 className="text-3xl font-bold text-white">Financial History</h2>
+                     <h2 className="text-3xl font-bold text-white">{t('financialHistory')}</h2>
                      <button onClick={() => setShowTransactionsModal(false)} className="text-zinc-500 hover:text-white text-3xl">&times;</button>
                    </div>
                    
@@ -833,7 +915,7 @@ function App() {
                        </div>
                      ))}
                      {transactions.length === 0 && (
-                       <div className="text-center py-20 text-zinc-500">No transactions recorded yet.</div>
+                       <div className="text-center py-20 text-zinc-500">{t('noTransactions')}</div>
                      )}
                    </div>
                    
@@ -841,7 +923,7 @@ function App() {
                      onClick={() => setShowTransactionsModal(false)}
                      className="mt-8 w-full py-4 bg-yellow-400 text-black font-bold rounded-2xl flex items-center justify-center gap-2"
                    >
-                     Close History
+                     {t('close')}
                    </button>
                  </div>
                </div>
@@ -891,22 +973,18 @@ function App() {
         <Sidebar role={currentRole} />
         
         <main className="flex-1 overflow-x-hidden relative bg-[#050505]">
-          <div className="absolute top-8 right-8 z-50">
-            <LanguageSwitcher />
-          </div>
-          
           <div className="relative">
             {currentPage === 'dashboard' && renderDashboard()}
-            {currentPage === 'cases' && renderDashboard()}
             {currentPage === 'grades' && renderGrades()}
             {currentPage === 'leaderboard' && renderLeaderboard()}
             {currentPage === 'missions_admin' && renderMissionsAdmin()}
             {currentPage === 'students' && renderAdminStudents()}
-            {currentPage !== 'dashboard' && currentPage !== 'leaderboard' && currentPage !== 'missions_admin' && currentPage !== 'students' && currentPage !== 'grades' && currentPage !== 'cases' && (
+            
+            {['bank', 'users', 'attendance', 'cases'].includes(currentPage) && (
                <div className="p-20 text-center flex flex-col items-center justify-center min-h-[80vh]">
                   <Database className="w-16 h-16 text-zinc-800 mb-8" />
                   <h2 className="text-3xl font-bold text-white uppercase tracking-tight opacity-50">{t('moduleUnderDev')}</h2>
-                  <button onClick={() => setCurrentPage('dashboard')} className="mt-8 text-yellow-500 font-bold uppercase tracking-[2px] text-[10px] hover:underline underline-offset-8">Return to Central Hub</button>
+                   <button onClick={() => setCurrentPage('dashboard')} className="mt-8 text-yellow-500 font-bold uppercase tracking-[2px] text-[10px] hover:underline underline-offset-8">{t('returnToHub')}</button>
                </div>
             )}
           </div>
@@ -926,8 +1004,8 @@ function App() {
     return (
       <div className="flex-1 p-10 overflow-y-auto">
         <header className="mb-16">
-          <h1 className="text-5xl font-black text-white mb-3 uppercase tracking-tighter text-left italic">Global Rankings</h1>
-          <p className="text-yellow-400 font-bold uppercase tracking-[0.2em] text-[10px]">The Elite Circle of YB Business Club</p>
+          <h1 className="text-5xl font-black text-white mb-3 uppercase tracking-tighter text-left italic">{t('globalRankings')}</h1>
+          <p className="text-yellow-400 font-bold uppercase tracking-[0.2em] text-[10px]">{t('eliteCircle')}</p>
         </header>
 
         {/* Podium View */}
@@ -980,10 +1058,10 @@ function App() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-zinc-900/30 border border-white/5 rounded-[2.5rem] overflow-hidden backdrop-blur-sm">
             <div className="grid grid-cols-12 p-6 border-b border-white/5 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-              <div className="col-span-1 pl-4">Rank</div>
-              <div className="col-span-7">Student</div>
-              <div className="col-span-2 text-center">Class</div>
-              <div className="col-span-2 text-right pr-4">Balance</div>
+              <div className="col-span-1 pl-4">{t('rankLabel')}</div>
+              <div className="col-span-7">{t('studentLabel')}</div>
+              <div className="col-span-2 text-center">{t('classLabel')}</div>
+              <div className="col-span-2 text-right pr-4">{t('balanceLabel')}</div>
             </div>
             {others.map((user, idx) => (
               <div key={user.id} className="grid grid-cols-12 p-8 hover:bg-white/[0.02] transition-colors items-center border-b last:border-0 border-white/5 group">
@@ -1006,8 +1084,8 @@ function App() {
             ))}
             {sortedUsers.length === 0 && (
               <div className="py-20 text-center">
-                <div className="text-zinc-800 text-6xl font-black mb-4 uppercase tracking-tighter">No Glory</div>
-                <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">Waiting for legends to rise</p>
+                <div className="text-zinc-800 text-6xl font-black mb-4 uppercase tracking-tighter">{t('noGlory')}</div>
+                <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">{t('waitingLegends')}</p>
               </div>
             )}
           </div>
@@ -1020,8 +1098,8 @@ function App() {
     return (
       <div className="flex-1 p-10 overflow-y-auto">
         <header className="mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter text-left">My Academic Grades</h1>
-          <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Track your performance and teacher feedback</p>
+          <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter text-left">{t('myGradesTitle')}</h1>
+          <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">{t('trackPerfDesc')}</p>
         </header>
 
         <div className="space-y-6">
@@ -1033,19 +1111,19 @@ function App() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-white uppercase tracking-tight mb-1">{grade.subject}</h3>
-                  <p className="text-zinc-500 text-sm font-medium">{grade.comment || 'No comment provided'}</p>
+                  <p className="text-zinc-500 text-sm font-medium">{grade.comment || t('noComment')}</p>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Assigned Date</div>
+                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">{t('assignedDate')}</div>
                 <div className="text-white font-bold tracking-tight">{grade.date}</div>
               </div>
             </div>
           ))}
           {grades.length === 0 && (
             <div className="text-center py-40">
-              <div className="text-zinc-800 text-6xl font-black mb-4 uppercase tracking-tighter">None</div>
-              <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">No grades recorded yet</p>
+              <div className="text-zinc-800 text-6xl font-black mb-4 uppercase tracking-tighter">{t('none')}</div>
+              <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">{t('noGradesYet')}</p>
             </div>
           )}
         </div>
@@ -1092,15 +1170,25 @@ function App() {
                 </div>
               </div>
 
-              <button 
-                onClick={() => {
-                  setSelectedUserForGrading(user);
-                  setShowGradingModal(true);
-                }}
-                className="w-full py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-[10px] font-bold text-yellow-400 uppercase tracking-widest hover:bg-yellow-400 hover:text-black hover:border-yellow-400 transition-all shadow-sm flex items-center justify-center gap-2"
-              >
-                Assign Grade <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="grid grid-cols-2 gap-3">
+                <button 
+                  onClick={() => {
+                    setSelectedUserForGrading(user);
+                    setShowGradingModal(true);
+                  }}
+                  className="py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-[10px] font-bold text-yellow-400 uppercase tracking-widest hover:bg-yellow-400 hover:text-black hover:border-yellow-400 transition-all shadow-sm flex items-center justify-center gap-2"
+                >
+                  Grade <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+                <button 
+                  onClick={() => {
+                     setShowSendMessageModal({show: true, recipientId: user.id, recipientName: user.name});
+                  }}
+                  className="py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-[10px] font-bold text-zinc-400 uppercase tracking-widest hover:text-white hover:border-zinc-600 transition-all flex items-center justify-center gap-2"
+                >
+                  Message
+                </button>
+              </div>
             </div>
           ))}
           {allUsers.filter(u => u.role?.toLowerCase() === 'student').length === 0 && (
@@ -1180,6 +1268,151 @@ function App() {
   return (
     <div className="min-h-screen bg-[#050505] overflow-hidden antialiased">
       {renderContent()}
+
+      {/* Global Search Overlay */}
+      {searchQuery.trim() !== '' && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[150] flex items-start justify-center pt-32 p-4">
+          <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[70vh] flex flex-col">
+            <div className="flex justify-between items-center mb-10">
+              <div>
+                <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">{t('searchResults')}</h2>
+                <div className="h-1 w-20 bg-yellow-400" />
+              </div>
+              <button onClick={() => setSearchQuery('')} className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-white transition-colors">&times;</button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-10 pr-4">
+              {filteredUsers.length > 0 && (
+                <section>
+                  <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">{t('enrolledStudents')}</h3>
+                  <div className="grid gap-3">
+                    {filteredUsers.map(user => (
+                      <div key={user.id} className="flex items-center justify-between p-5 bg-zinc-800/40 rounded-3xl border border-white/5 hover:border-yellow-400/30 transition-all group">
+                         <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-xl font-bold border border-white/10 group-hover:border-yellow-400/30">
+                              {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover rounded-2xl" /> : user.name[0]}
+                            </div>
+                            <div>
+                               <div className="text-white font-bold uppercase tracking-tight">{user.name}</div>
+                               <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{user.grade} • ${user.balance}</div>
+                            </div>
+                         </div>
+                         <button onClick={() => { setSearchQuery(''); setCurrentPage('leaderboard'); }} className="p-3 bg-zinc-900 rounded-xl text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ChevronRight className="w-5 h-5" />
+                         </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {filteredMissions.length > 0 && (
+                <section>
+                  <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">{t('strategicMissions')}</h3>
+                  <div className="grid gap-4">
+                    {filteredMissions.map(m => (
+                      <div key={m.id} className="p-6 bg-zinc-800/40 rounded-[2rem] border border-white/5 hover:border-yellow-400/30 transition-all group">
+                         <div className="flex justify-between items-start mb-4">
+                           <h4 className="text-xl font-bold text-white uppercase tracking-tight group-hover:text-yellow-400 transition-colors">{m.title}</h4>
+                           <span className="text-yellow-400 font-black tabular-nums">+${m.reward}</span>
+                         </div>
+                         <p className="text-sm text-zinc-500 line-clamp-2 mb-6">{m.description}</p>
+                         <button onClick={() => { setSearchQuery(''); setCurrentPage('dashboard'); }} className="text-[10px] font-black text-white hover:text-yellow-400 transition-colors uppercase tracking-[0.2em] flex items-center gap-2">
+                            {t('viewMission')} <ChevronRight className="w-3 h-3" />
+                         </button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {filteredUsers.length === 0 && filteredMissions.length === 0 && (
+                <div className="text-center py-20">
+                   <div className="text-zinc-800 text-6xl font-black italic tracking-tighter uppercase mb-4">{t('empty')}</div>
+                   <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">{t('noMatchesFound')} "{searchQuery}"</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Messages Modal */}
+      {showMessagesModal && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+          <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col max-h-[80vh]">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h2 className="text-3xl font-bold text-white uppercase tracking-tight">{t('messages')}</h2>
+                <div className="h-1 w-12 bg-yellow-400 mt-2" />
+              </div>
+              <button onClick={() => setShowMessagesModal(false)} className="text-zinc-500 hover:text-white text-3xl font-light">&times;</button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto pr-4 space-y-4">
+              {messages.map((msg) => (
+                <div key={msg.id} className={`p-6 bg-zinc-800/50 rounded-3xl border transition-all ${msg.is_read ? 'border-white/5 border-l-0 opacity-60' : 'border-yellow-400/30 border-l-4 border-l-yellow-400'}`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="text-[10px] font-black text-yellow-400 uppercase tracking-widest">{msg.sender?.full_name || t('administrator')}</div>
+                    <div className="text-[10px] text-zinc-600 font-bold">{new Date(msg.created_at).toLocaleDateString()}</div>
+                  </div>
+                  <p className="text-zinc-200 text-sm leading-relaxed mb-6">{msg.content}</p>
+                  {!msg.is_read && (
+                    <button 
+                      onClick={() => markMessageAsRead(msg.id)}
+                      className="text-[10px] font-black text-white hover:text-yellow-400 transition-colors uppercase tracking-[0.2em]"
+                    >
+                      {t('markAsRead')}
+                    </button>
+                  )}
+                </div>
+              ))}
+              {messages.length === 0 && (
+                <div className="text-center py-20 text-zinc-500 font-bold uppercase tracking-widest text-xs">{t('noMessages')}</div>
+              )}
+            </div>
+            
+            <button 
+              onClick={() => setShowMessagesModal(false)}
+              className="mt-8 w-full py-4 bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold rounded-2xl flex items-center justify-center gap-2 hover:text-white hover:border-zinc-600 transition-all uppercase tracking-widest text-xs"
+            >
+              {t('close')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Send Message Modal */}
+      {showSendMessageModal.show && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+           <div className="bg-zinc-900 border border-white/10 w-full max-w-xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300">
+              <h2 className="text-2xl font-bold text-white mb-2 italic">{t('sendDirectMessage')}</h2>
+              <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-8">{t('recipient')}: <span className="text-yellow-400">{showSendMessageModal.recipientName}</span></p>
+              
+              <textarea 
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl p-6 text-white focus:outline-none focus:border-yellow-400 transition-all font-medium h-48 resize-none mb-8"
+                placeholder={t('typeMessage')}
+                value={newMessageContent}
+                onChange={(e) => setNewMessageContent(e.target.value)}
+              />
+
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  onClick={() => setShowSendMessageModal({show: false, recipientId: '', recipientName: ''})}
+                  className="py-4 bg-transparent border border-zinc-800 rounded-2xl text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white hover:border-zinc-700 transition-all"
+                >
+                  {t('cancel')}
+                </button>
+                <button 
+                  onClick={() => sendMessage(showSendMessageModal.recipientId, newMessageContent)}
+                  className="py-4 bg-yellow-400 text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-yellow-300 transition-all"
+                >
+                  {t('sendMessage')}
+                </button>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }
