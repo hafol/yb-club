@@ -544,7 +544,7 @@ function App() {
         ];
 
     return (
-      <aside className="w-72 bg-zinc-950/50 backdrop-blur-3xl border-r border-white/5 h-screen flex flex-col sticky top-0 overflow-hidden">
+      <aside className="w-72 liquid-glass border-r border-white/5 h-screen flex flex-col sticky top-0 overflow-hidden">
         <div className="p-8">
           <div className="flex items-center gap-4 group cursor-pointer">
             <div className="w-12 h-12 bg-zinc-900 rounded-xl flex items-center justify-center shadow-lg shadow-black/50 group-hover:scale-105 transition-transform duration-500 overflow-hidden border border-white/10">
@@ -635,7 +635,7 @@ function App() {
 
         <div className="grid gap-6">
           {cases.map((mission) => (
-            <div key={mission.id} className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group hover:border-yellow-400/20 transition-all shadow-sm">
+            <div key={mission.id} className="liquid-glass p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group shadow-sm">
               <div className="w-full">
                 <h3 className="text-xl md:text-2xl font-bold text-white uppercase group-hover:text-yellow-400 transition-colors leading-tight">{mission.title}</h3>
                 <p className="text-zinc-500 text-sm mt-3 line-clamp-2 leading-relaxed">{mission.description}</p>
@@ -665,7 +665,7 @@ function App() {
 
         {showAddMissionModal && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-zinc-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] p-6 md:p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 my-8">
+            <div className="liquid-glass w-full max-w-lg rounded-[2.5rem] p-6 md:p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 my-8">
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 uppercase tracking-tighter">Create New Mission</h2>
               <div className="space-y-6">
                 <div className="space-y-3">
@@ -786,7 +786,7 @@ function App() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           
           {/* Capital Resources - Wide Hero Card */}
-          <div className="col-span-1 md:col-span-12 lg:col-span-6 group relative bg-gradient-to-br from-zinc-900 to-black border border-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] transition-all duration-500 hover:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden flex flex-col justify-between min-h-[200px] md:min-h-[260px]">
+          <div className="col-span-1 md:col-span-12 lg:col-span-6 group relative liquid-glass p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden flex flex-col justify-between min-h-[200px] md:min-h-[260px] shadow-2xl">
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-yellow-400/5 blur-[120px] rounded-full pointer-events-none group-hover:bg-yellow-400/10 transition-all duration-1000 translate-x-1/3 -translate-y-1/3 keep-colors" />
             
             <div className="flex justify-between items-start relative z-10">
@@ -813,7 +813,7 @@ function App() {
           </div>
 
           {/* Academic Performance */}
-          <div className="col-span-1 md:col-span-6 lg:col-span-3 group relative bg-zinc-900 border border-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] transition-all duration-300 hover:border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] flex flex-col justify-between min-h-[200px] md:min-h-[260px]">
+          <div className="col-span-1 md:col-span-6 lg:col-span-3 group relative liquid-glass p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] flex flex-col justify-between min-h-[200px] md:min-h-[260px]">
             <div className="flex justify-between items-start">
               <div className="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors border border-white/5 shadow-inner">
                 <GraduationCap className="w-5 h-5 text-white" strokeWidth={1.25} />
@@ -840,7 +840,7 @@ function App() {
           <div className="col-span-1 md:col-span-6 lg:col-span-3 flex flex-col gap-6 min-h-[260px]">
              
              {/* Missions Mini-card */}
-             <div className="flex-1 group relative bg-zinc-900 border border-white/5 p-6 rounded-[2rem] transition-all duration-300 hover:border-white/10 flex items-center gap-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] overflow-hidden">
+             <div className="flex-1 group relative liquid-glass p-6 rounded-[2rem] flex items-center gap-5 overflow-hidden">
                 <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-yellow-400/5 to-transparent keep-colors" />
                 <div className="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center shrink-0 border border-white/5">
                   <Target className="w-5 h-5 text-yellow-400 keep-colors" strokeWidth={1.25} />
@@ -855,7 +855,7 @@ function App() {
              </div>
              
              {/* Status Mini-card */}
-             <div className="flex-1 group relative bg-zinc-900 border border-white/5 p-6 rounded-[2rem] transition-all duration-300 hover:border-white/10 flex items-center gap-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
+             <div className="flex-1 group relative liquid-glass p-6 rounded-[2rem] flex items-center gap-5">
                 <div className="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center shrink-0 border border-white/5">
                   <ShieldCheck className="w-5 h-5 text-emerald-400 keep-colors" strokeWidth={1.25} />
                 </div>
@@ -896,7 +896,7 @@ function App() {
                 {cases
                   .filter(m => !transactions.some(t => t.mission_id === parseInt(m.id)))
                   .map((mission, idx) => (
-                  <div key={idx} className="bg-zinc-900/50 border border-zinc-800 rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-10 group relative transition-all duration-300 hover:border-yellow-400/20">
+                  <div key={idx} className="liquid-glass border-zinc-800 rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-10 group relative">
                     <div className="flex flex-col md:flex-row justify-between items-start gap-4 md:gap-6">
                       <div className="flex-1 space-y-4">
                         <div className="flex items-center gap-3">
@@ -934,7 +934,7 @@ function App() {
 
           {/* Activity Column */}
           <div className="col-span-1 lg:col-span-4 space-y-6 md:space-y-8">
-            <section className="bg-zinc-900 border border-zinc-800 rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 h-full shadow-sm relative overflow-hidden">
+            <section className="liquid-glass rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 h-full shadow-sm relative overflow-hidden">
                <div className="flex items-center justify-between mb-8">
                   <h2 className="text-xl font-bold text-white uppercase tracking-tight">{t('activityFeed')}</h2>
                   <div className="flex items-center gap-2">
@@ -977,7 +977,7 @@ function App() {
              {/* Transactions Modal */}
              {showTransactionsModal && (
                <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-                 <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col max-h-[80vh]">
+                 <div className="liquid-glass w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col max-h-[80vh]">
                    <div className="flex justify-between items-center mb-8">
                      <h2 className="text-3xl font-bold text-white">{t('financialHistory')}</h2>
                      <button onClick={() => setShowTransactionsModal(false)} className="text-zinc-500 hover:text-white text-3xl">&times;</button>
@@ -1039,7 +1039,7 @@ function App() {
     
      if (currentRole === 'login') {
       return (
-        <div className="relative overflow-hidden bg-black min-h-screen">
+        <div className="relative overflow-hidden bg-black min-h-screen uiverse-bg">
           <div className="absolute top-8 left-8 z-50">
             <LanguageSwitcher />
           </div>
@@ -1050,7 +1050,7 @@ function App() {
     }
     
     return (
-      <div className="flex min-h-screen bg-black text-white selection:bg-yellow-400 selection:text-black font-sans w-full overflow-hidden">
+      <div className="flex min-h-screen bg-black text-white selection:bg-yellow-400 selection:text-black font-sans w-full overflow-hidden uiverse-bg">
         {/* Mobile App Bar - only visible on small screens */}
         <div className="fixed top-0 left-0 right-0 h-16 bg-zinc-950/90 backdrop-blur-xl border-b border-white/5 z-[60] flex items-center justify-between px-5 shadow-lg lg:hidden">
            <div className="flex items-center gap-3">
@@ -1069,19 +1069,17 @@ function App() {
         </div>
 
         {/* Mobile Drawer Overlay - only when open */}
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-[70] lg:hidden">
-            {/* Dark backdrop */}
-            <div 
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm" 
-              onClick={() => setIsMobileMenuOpen(false)} 
-            />
-            {/* Sidebar drawer */}
-            <div className="absolute inset-y-0 left-0 z-10 w-72">
-              <Sidebar role={currentRole} onClose={() => setIsMobileMenuOpen(false)} />
-            </div>
+        <div className={`fixed inset-0 z-[70] lg:hidden transition-all duration-500 ease-in-out ${isMobileMenuOpen ? 'visible pointer-events-auto' : 'invisible pointer-events-none'}`}>
+          {/* Dark backdrop */}
+          <div 
+            className={`absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-500 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`} 
+            onClick={() => setIsMobileMenuOpen(false)} 
+          />
+          {/* Sidebar drawer */}
+          <div className={`absolute inset-y-0 left-0 z-10 w-[280px] sm:w-72 transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <Sidebar role={currentRole} onClose={() => setIsMobileMenuOpen(false)} />
           </div>
-        )}
+        </div>
 
         {/* Desktop Sidebar - always visible on lg+ screens, hidden on mobile */}
         <div className="hidden lg:block">
@@ -1128,7 +1126,7 @@ function App() {
         <div className="flex flex-col md:grid md:grid-cols-3 gap-16 md:gap-8 mb-20 mt-12 md:mt-0 items-center md:items-end">
           {/* 2nd Place */}
           {top3[1] && (
-            <div className="w-full max-w-[280px] md:max-w-none order-2 md:order-1 bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] text-center relative pt-14 md:pt-16 group hover:border-zinc-500/30 transition-all shadow-sm mx-auto md:mx-0">
+            <div className="w-full max-w-[280px] md:max-w-none order-2 md:order-1 liquid-glass p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] text-center relative pt-14 md:pt-16 group shadow-sm mx-auto md:mx-0">
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 md:w-24 h-20 md:h-24 rounded-full bg-zinc-800 border-[3px] md:border-4 border-zinc-600 overflow-hidden shadow-2xl">
                 {top3[1].avatar ? <img src={top3[1].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl md:text-2xl font-bold">{top3[1].name[0]}</div>}
               </div>
@@ -1142,7 +1140,7 @@ function App() {
 
           {/* 1st Place */}
           {top3[0] && (
-            <div className="w-full max-w-[320px] md:max-w-none order-1 md:order-2 bg-gradient-to-b from-yellow-400/20 to-transparent backdrop-blur-2xl border border-yellow-400/30 p-8 md:p-10 rounded-[3rem] md:rounded-[4rem] text-center relative pt-20 md:pt-20 group scale-100 md:scale-110 shadow-[0_0_100px_rgba(250,204,21,0.15)] mx-auto md:mx-0">
+            <div className="w-full max-w-[320px] md:max-w-none order-1 md:order-2 bg-gradient-to-b from-yellow-400/20 to-transparent backdrop-blur-2xl border border-yellow-400/30 p-8 md:p-10 rounded-[3rem] md:rounded-[4rem] text-center relative pt-20 md:pt-20 group scale-100 md:scale-110 shadow-[0_0_100px_rgba(250,204,21,0.15)] mx-auto md:mx-0 liquid-glass">
               <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-28 md:w-32 h-28 md:h-32 rounded-full bg-zinc-900 border-[3px] md:border-4 border-yellow-400 overflow-hidden shadow-[0_0_40px_rgba(250,204,21,0.4)]">
                 {top3[0].avatar ? <img src={top3[0].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl md:text-4xl font-bold text-yellow-400">{top3[0].name[0]}</div>}
               </div>
@@ -1157,7 +1155,7 @@ function App() {
 
           {/* 3rd Place */}
           {top3[2] && (
-            <div className="w-full max-w-[280px] md:max-w-none order-3 md:order-3 bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] text-center relative pt-14 md:pt-16 group hover:border-orange-900/30 transition-all shadow-sm mx-auto md:mx-0">
+            <div className="w-full max-w-[280px] md:max-w-none order-3 md:order-3 liquid-glass p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] text-center relative pt-14 md:pt-16 group shadow-sm mx-auto md:mx-0">
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 md:w-24 h-20 md:h-24 rounded-full bg-zinc-800 border-[3px] md:border-4 border-orange-800/50 overflow-hidden shadow-2xl">
                 {top3[2].avatar ? <img src={top3[2].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl md:text-2xl font-bold">{top3[2].name[0]}</div>}
               </div>
@@ -1225,7 +1223,7 @@ function App() {
 
         <div className="space-y-4 md:space-y-6">
           {grades.map((grade, idx) => (
-            <div key={idx} className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] flex flex-col sm:flex-row justify-between items-start sm:items-center group hover:border-yellow-400/20 transition-all shadow-sm gap-4 sm:gap-0">
+            <div key={idx} className="liquid-glass p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] flex flex-col sm:flex-row justify-between items-start sm:items-center group shadow-sm gap-4 sm:gap-0">
               <div className="flex items-center gap-4 md:gap-6 w-full sm:w-auto">
                 <div className="w-14 h-14 md:w-16 md:h-16 bg-zinc-800 rounded-2xl flex items-center justify-center text-xl md:text-2xl font-bold text-yellow-400 border border-white/5 group-hover:bg-yellow-400 group-hover:text-black transition-all shadow-inner shrink-0">
                   {grade.score}%
@@ -1271,7 +1269,7 @@ function App() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
           {allUsers.filter(u => u.role?.toLowerCase() === 'student').map(user => (
-            <div key={user.id} className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 p-6 rounded-[2rem] hover:border-yellow-400/20 transition-all shadow-sm group">
+            <div key={user.id} className="liquid-glass p-6 rounded-[2rem] shadow-sm group">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-zinc-800 border border-white/10 flex items-center justify-center text-lg md:text-xl font-bold text-white uppercase overflow-hidden group-hover:border-yellow-400/40 transition-colors shadow-inner shrink-0">
                   {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name[0]}
@@ -1324,7 +1322,7 @@ function App() {
         {/* Grading Modal */}
         {showGradingModal && selectedUserForGrading && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-zinc-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] p-6 md:p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 my-8">
+            <div className="liquid-glass w-full max-w-lg rounded-[2.5rem] p-6 md:p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 my-8">
               <div className="mb-8 flex justify-between items-start">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 uppercase tracking-tighter">Assign Grade</h2>
@@ -1393,7 +1391,7 @@ function App() {
       {/* Global Search Overlay */}
       {searchQuery.trim() !== '' && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[150] flex items-start justify-center pt-32 p-4">
-          <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[70vh] flex flex-col">
+          <div className="liquid-glass w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[70vh] flex flex-col">
             <div className="flex justify-between items-center mb-10">
               <div>
                 <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">{t('searchResults')}</h2>
@@ -1408,7 +1406,7 @@ function App() {
                   <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">{t('enrolledStudents')}</h3>
                   <div className="grid gap-3">
                     {filteredUsers.map(user => (
-                      <div key={user.id} className="flex items-center justify-between p-5 bg-zinc-800/40 rounded-3xl border border-white/5 hover:border-yellow-400/30 transition-all group">
+                      <div key={user.id} className="flex items-center justify-between p-5 liquid-glass rounded-3xl hover:border-yellow-400/30 group">
                          <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-xl font-bold border border-white/10 group-hover:border-yellow-400/30">
                               {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover rounded-2xl" /> : user.name[0]}
@@ -1432,7 +1430,7 @@ function App() {
                   <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">{t('strategicMissions')}</h3>
                   <div className="grid gap-4">
                     {filteredMissions.map(m => (
-                      <div key={m.id} className="p-6 bg-zinc-800/40 rounded-[2rem] border border-white/5 hover:border-yellow-400/30 transition-all group">
+                      <div key={m.id} className="p-6 liquid-glass rounded-[2rem] hover:border-yellow-400/30 group">
                          <div className="flex justify-between items-start mb-4">
                            <h4 className="text-xl font-bold text-white uppercase tracking-tight group-hover:text-yellow-400 transition-colors">{m.title}</h4>
                            <span className="text-yellow-400 font-black tabular-nums">+${m.reward}</span>
@@ -1461,7 +1459,7 @@ function App() {
       {/* Messages Modal */}
       {showMessagesModal && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-          <div className="bg-zinc-900 border border-white/10 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col max-h-[80vh]">
+          <div className="liquid-glass w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col max-h-[80vh]">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h2 className="text-3xl font-bold text-white uppercase tracking-tight">{t('messages')}</h2>
@@ -1472,7 +1470,7 @@ function App() {
             
             <div className="flex-1 overflow-y-auto pr-4 space-y-4">
               {messages.map((msg) => (
-                <div key={msg.id} className={`p-6 bg-zinc-800/50 rounded-3xl border transition-all ${msg.is_read ? 'border-white/5 border-l-0 opacity-60' : 'border-yellow-400/30 border-l-4 border-l-yellow-400'}`}>
+                <div key={msg.id} className={`p-6 liquid-glass rounded-3xl transition-all ${msg.is_read ? 'border-none opacity-60' : 'border-yellow-400/30 border-l-4 border-l-yellow-400'}`}>
                   <div className="flex justify-between items-start mb-4">
                     <div className="text-[10px] font-black text-yellow-400 uppercase tracking-widest">{msg.sender?.full_name || t('administrator')}</div>
                     <div className="text-[10px] text-zinc-600 font-bold">{new Date(msg.created_at).toLocaleDateString()}</div>
@@ -1506,7 +1504,7 @@ function App() {
       {/* Send Message Modal */}
       {showSendMessageModal.show && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-           <div className="bg-zinc-900 border border-white/10 w-full max-w-xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300">
+           <div className="liquid-glass w-full max-w-xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300">
               <h2 className="text-2xl font-bold text-white mb-2 italic">{t('sendDirectMessage')}</h2>
               <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-8">{t('recipient')}: <span className="text-yellow-400">{showSendMessageModal.recipientName}</span></p>
               
@@ -1538,7 +1536,7 @@ function App() {
       {/* Avatar Upload Modal */}
       {showAvatarModal && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-           <div className="bg-zinc-900 border border-white/10 w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col items-center text-center">
+           <div className="liquid-glass w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col items-center text-center">
               <div className="w-24 h-24 rounded-3xl bg-zinc-800 flex items-center justify-center font-black text-4xl text-yellow-400 border-2 border-dashed border-zinc-700 mb-6 overflow-hidden">
                 {currentUser?.avatar?.startsWith('http') ? (
                   <img src={currentUser.avatar} alt="Current Avatar" className="w-full h-full object-cover" />

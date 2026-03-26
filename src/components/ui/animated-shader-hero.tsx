@@ -160,7 +160,7 @@ const useShaderBackground = () => {
 const Hero: React.FC<HeroProps> = ({ trustBadge, headline, subtitle, buttons, languageSwitcher, className = "" }) => {
   const canvasRef = useShaderBackground();
   return (
-    <div className={`relative w-full h-screen overflow-hidden bg-black ${className}`}>
+    <div className={`relative w-full h-screen overflow-hidden bg-black uiverse-bg ${className}`}>
       <style>{`
         @keyframes fade-in-down { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
         @keyframes fade-in-up { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
