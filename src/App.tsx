@@ -9,7 +9,7 @@ import {
   Users, Calendar, LogOut, Search, BookOpen, Award, DollarSign,
   Bell, ChevronRight, LayoutDashboard, Database, Trophy,
   ShieldCheck, ArrowUpRight, ArrowDownRight,
-  Sun, Moon, Wallet, Target, GraduationCap
+  Sun, Moon, Wallet, Target, GraduationCap, Menu, X
 } from 'lucide-react';
 
 import cashIcon from './assets/dashboard/cash.png';
@@ -80,6 +80,9 @@ function App() {
   const [newGrade, setNewGrade] = useState({ subject: '', score: 0, comment: '' });
   const [newMission, setNewMission] = useState({ title: '', description: '', reward: 0, deadline: '' });
   const [animatedBalance, setAnimatedBalance] = useState(0);
+
+  // Mobile Navigation State
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Theme State
   const [theme, setTheme] = useState<'dark' | 'light'>(
@@ -517,7 +520,7 @@ function App() {
     }
   };
 
-  const Sidebar = ({ role }: { role: string }) => {
+  const Sidebar = ({ role, onClose }: { role: string; onClose?: () => void }) => {
     const navItems = role === 'student' 
       ? [
           { id: 'dashboard', label: t('dashboard'), icon: LayoutDashboard },
@@ -562,7 +565,7 @@ function App() {
             return (
               <button
                 key={item.id}
-                onClick={() => setCurrentPage(item.id as any)}
+                onClick={() => { setCurrentPage(item.id as any); if (onClose) onClose(); }}
                 className={`w-full flex items-center gap-4 px-4 py-4 rounded-l-none rounded-r-xl transition-all duration-300 group relative
                   ${isActive 
                     ? 'text-white' 
@@ -615,44 +618,44 @@ function App() {
 
   const renderMissionsAdmin = () => {
     return (
-      <div className="p-8 space-y-8 max-w-[1200px] mx-auto">
-        <header className="flex justify-between items-center">
+      <div className="p-6 md:p-10 space-y-8 max-w-[1200px] mx-auto">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-white tracking-tight">Mission Management</h1>
-            <p className="text-zinc-500 mt-2">Create and monitor strategic challenges for students.</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight uppercase">Mission Management</h1>
+            <p className="text-zinc-500 mt-2 text-[10px] font-bold uppercase tracking-widest">Create and monitor strategic challenges for students.</p>
           </div>
           <button 
             onClick={() => setShowAddMissionModal(true)}
-            className="px-6 py-3 bg-yellow-400 text-black font-bold rounded-xl hover:scale-105 transition-all flex items-center gap-2"
+            className="w-full sm:w-auto px-6 py-4 bg-yellow-400 text-black font-bold text-[10px] uppercase tracking-widest rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex justify-center items-center gap-2 shadow-lg shadow-yellow-400/20"
           >
-            <BookOpen className="w-5 h-5" />
+            <BookOpen className="w-4 h-4 keep-colors" />
             Add New Mission
           </button>
         </header>
 
         <div className="grid gap-6">
           {cases.map((mission) => (
-            <div key={mission.id} className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-bold text-white">{mission.title}</h3>
-                <p className="text-zinc-500 text-sm mt-1">{mission.description}</p>
-                <div className="flex gap-4 mt-4">
-                  <span className="text-xs font-bold text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full uppercase tracking-widest border border-yellow-400/10">
+            <div key={mission.id} className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group hover:border-yellow-400/20 transition-all shadow-sm">
+              <div className="w-full">
+                <h3 className="text-xl md:text-2xl font-bold text-white uppercase group-hover:text-yellow-400 transition-colors leading-tight">{mission.title}</h3>
+                <p className="text-zinc-500 text-sm mt-3 line-clamp-2 leading-relaxed">{mission.description}</p>
+                <div className="flex flex-wrap gap-3 mt-6">
+                  <span className="text-[9px] font-bold text-yellow-400 bg-yellow-400/10 px-3 py-1.5 rounded-lg uppercase tracking-widest border border-yellow-400/20 keep-colors">
                     Reward: ${mission.reward}
                   </span>
-                  <span className="text-xs font-bold text-zinc-500 bg-zinc-800 px-3 py-1 rounded-full uppercase tracking-widest">
-                    Deadline: {mission.deadline}
+                  <span className="text-[9px] font-bold text-zinc-400 bg-zinc-800/80 px-3 py-1.5 rounded-lg uppercase tracking-widest border border-white/5 flex items-center gap-2">
+                    <Calendar className="w-3 h-3" /> {mission.deadline}
                   </span>
-                  <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest ${mission.status === 'active' ? 'text-green-400 bg-green-400/10' : 'text-red-400 bg-red-400/10'}`}>
+                  <span className={`text-[9px] font-bold px-3 py-1.5 rounded-lg uppercase tracking-widest border flex items-center gap-1 ${mission.status === 'active' ? 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20'}`}>
                     {mission.status}
                   </span>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <button className="p-2 bg-zinc-800 text-zinc-400 hover:text-white rounded-lg transition-colors">
+              <div className="flex w-full md:w-auto gap-3 shrink-0">
+                <button className="flex-1 md:flex-none px-6 py-3 bg-zinc-800/80 border border-white/5 shadow-inner text-zinc-400 hover:text-white rounded-xl transition-colors font-bold text-[10px] uppercase tracking-widest">
                   Edit
                 </button>
-                <button className="p-2 bg-zinc-800 text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                <button className="flex-1 md:flex-none px-6 py-3 bg-red-400/10 border border-red-400/20 text-red-400 hover:bg-red-400 hover:text-white rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest shadow-sm">
                   Close
                 </button>
               </div>
@@ -661,59 +664,59 @@ function App() {
         </div>
 
         {showAddMissionModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-            <div className="bg-zinc-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300">
-              <h2 className="text-3xl font-bold text-white mb-6">Create New Mission</h2>
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-zinc-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] p-6 md:p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 my-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-8 uppercase tracking-tighter">Create New Mission</h2>
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Mission Title</label>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Mission Title</label>
                   <input 
                     type="text" 
                     value={newMission.title}
                     onChange={(e) => setNewMission({...newMission, title: e.target.value})}
                     placeholder="e.g. Market Research Challenge"
-                    className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all"
+                    className="w-full bg-zinc-950/50 border border-white/5 shadow-inner text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all text-sm font-medium"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Description</label>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Description</label>
                   <textarea 
                     value={newMission.description}
                     onChange={(e) => setNewMission({...newMission, description: e.target.value})}
                     placeholder="Describe the mission goals..."
-                    className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all h-32 resize-none"
+                    className="w-full bg-zinc-950/50 border border-white/5 shadow-inner text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all h-32 resize-none text-sm font-medium"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Reward (YBD)</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Reward (YBD)</label>
                     <input 
                       type="number" 
                       value={newMission.reward}
                       onChange={(e) => setNewMission({...newMission, reward: parseInt(e.target.value)})}
-                      className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all"
+                      className="w-full bg-zinc-950/50 border border-white/5 shadow-inner text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all text-sm font-medium tabular-nums"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">Deadline Date</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Deadline Date</label>
                     <input 
                       type="date" 
                       value={newMission.deadline}
                       onChange={(e) => setNewMission({...newMission, deadline: e.target.value})}
-                      className="w-full bg-zinc-800 border border-zinc-700 text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all"
+                      className="w-full bg-zinc-950/50 border border-white/5 shadow-inner text-white px-5 py-4 rounded-2xl focus:ring-2 focus:ring-yellow-400 outline-none transition-all text-sm font-medium appearance-none"
                     />
                   </div>
                 </div>
-                <div className="flex gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-4 pt-6">
                   <button 
                     onClick={() => setShowAddMissionModal(false)}
-                    className="flex-1 py-4 bg-zinc-800 text-zinc-400 font-bold rounded-2xl hover:bg-zinc-700 transition-all"
+                    className="w-full sm:flex-1 py-4 bg-zinc-800 border border-white/5 text-zinc-400 hover:text-white font-bold text-[10px] uppercase tracking-widest rounded-2xl hover:bg-zinc-700 transition-all shadow-inner"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={createMission}
-                    className="flex-1 py-4 bg-yellow-400 text-black font-bold rounded-2xl hover:scale-105 transition-all shadow-lg shadow-yellow-400/20"
+                    className="w-full sm:flex-1 py-4 bg-yellow-400 text-black font-bold text-[10px] uppercase tracking-widest rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(250,204,21,0.3)]"
                   >
                     Create Mission
                   </button>
@@ -1047,10 +1050,37 @@ function App() {
     }
     
     return (
-      <div className="flex min-h-screen bg-black text-white selection:bg-yellow-400 selection:text-black font-sans">
-        <Sidebar role={currentRole} />
+      <div className="flex min-h-screen bg-black text-white selection:bg-yellow-400 selection:text-black font-sans w-full overflow-hidden">
+        {/* Mobile App Bar */}
+        <div className="lg:hidden fixed top-0 w-full h-16 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 z-[60] flex items-center justify-between px-6 shadow-sm">
+           <div className="flex items-center gap-3">
+             <div className="w-8 h-8 bg-zinc-900 rounded-lg flex items-center justify-center border border-white/10 keep-colors shadow-inner">
+               <img src={logo} className="w-6 h-6 object-cover" />
+             </div>
+             <span className="font-bold text-white tracking-widest uppercase text-sm">YB Club</span>
+           </div>
+           
+           <button 
+             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+             className="text-zinc-400 hover:text-white transition-colors"
+           >
+             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+           </button>
+        </div>
+
+        {/* Mobile Backdrop & Sidebar Container */}
+        {isMobileMenuOpen && (
+           <div 
+             className="fixed inset-0 bg-black/60 backdrop-blur-md z-[70] lg:hidden animate-in fade-in duration-300" 
+             onClick={() => setIsMobileMenuOpen(false)} 
+           />
+        )}
+
+        <div className={`fixed inset-y-0 left-0 z-[80] transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] lg:relative lg:translate-x-0`}>
+          <Sidebar role={currentRole} onClose={() => setIsMobileMenuOpen(false)} />
+        </div>
         
-        <main className="flex-1 overflow-x-hidden relative bg-[#050505]">
+        <main className="flex-1 overflow-x-hidden relative bg-[#050505] pt-16 lg:pt-0 w-full max-w-[100vw]">
           <div className="relative">
             {currentPage === 'dashboard' && renderDashboard()}
             {currentPage === 'grades' && renderGrades()}
@@ -1059,10 +1089,10 @@ function App() {
             {currentPage === 'students' && renderAdminStudents()}
             
             {['bank', 'users', 'attendance', 'cases'].includes(currentPage) && (
-               <div className="p-20 text-center flex flex-col items-center justify-center min-h-[80vh]">
+               <div className="p-10 md:p-20 text-center flex flex-col items-center justify-center min-h-[80vh]">
                   <Database className="w-16 h-16 text-zinc-800 mb-8" />
-                  <h2 className="text-3xl font-bold text-white uppercase tracking-tight opacity-50">{t('moduleUnderDev')}</h2>
-                   <button onClick={() => setCurrentPage('dashboard')} className="mt-8 text-yellow-500 font-bold uppercase tracking-[2px] text-[10px] hover:underline underline-offset-8">{t('returnToHub')}</button>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white uppercase tracking-tight opacity-50">{t('moduleUnderDev')}</h2>
+                  <button onClick={() => setCurrentPage('dashboard')} className="mt-8 text-yellow-500 font-bold uppercase tracking-[2px] text-[10px] hover:underline underline-offset-8 transition-all">{t('returnToHub')}</button>
                </div>
             )}
           </div>
@@ -1080,23 +1110,23 @@ function App() {
     const others = sortedUsers.slice(3);
 
     return (
-      <div className="flex-1 p-10 overflow-y-auto">
-        <header className="mb-16">
-          <h1 className="text-5xl font-black text-white mb-3 uppercase tracking-tighter text-left italic">{t('globalRankings')}</h1>
+      <div className="flex-1 p-6 md:p-10 overflow-y-auto">
+        <header className="mb-12 md:mb-16">
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-2 md:mb-3 uppercase tracking-tighter text-left italic">{t('globalRankings')}</h1>
           <p className="text-yellow-400 font-bold uppercase tracking-[0.2em] text-[10px]">{t('eliteCircle')}</p>
         </header>
 
         {/* Podium View */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 items-end">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-16 md:gap-8 mb-20 mt-12 md:mt-0 items-center md:items-end">
           {/* 2nd Place */}
           {top3[1] && (
-            <div className="order-2 md:order-1 bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[3rem] text-center relative pt-16 group hover:border-zinc-500/30 transition-all">
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-zinc-800 border-4 border-zinc-600 overflow-hidden shadow-2xl">
-                {top3[1].avatar ? <img src={top3[1].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-bold">{top3[1].name[0]}</div>}
+            <div className="w-full max-w-[280px] md:max-w-none order-2 md:order-1 bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] text-center relative pt-14 md:pt-16 group hover:border-zinc-500/30 transition-all shadow-sm mx-auto md:mx-0">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 md:w-24 h-20 md:h-24 rounded-full bg-zinc-800 border-[3px] md:border-4 border-zinc-600 overflow-hidden shadow-2xl">
+                {top3[1].avatar ? <img src={top3[1].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl md:text-2xl font-bold">{top3[1].name[0]}</div>}
               </div>
-              <div className="text-zinc-500 font-black text-4xl mb-2 opacity-20 italic">#2</div>
-              <h3 className="text-xl font-bold text-white uppercase mb-4">{top3[1].name}</h3>
-              <div className="inline-block px-4 py-2 bg-zinc-800/50 rounded-full text-zinc-300 font-bold text-xs border border-white/5">
+              <div className="text-zinc-500 font-black text-3xl md:text-4xl mb-2 opacity-20 italic">#2</div>
+              <h3 className="text-lg md:text-xl font-bold text-white uppercase mb-4 truncate px-2">{top3[1].name}</h3>
+              <div className="inline-block px-4 py-2 bg-zinc-800/80 rounded-full text-zinc-300 font-bold text-xs border border-white/5 shadow-inner">
                 ${top3[1].balance}
               </div>
             </div>
@@ -1104,14 +1134,14 @@ function App() {
 
           {/* 1st Place */}
           {top3[0] && (
-            <div className="order-1 md:order-2 bg-gradient-to-b from-yellow-400/20 to-transparent backdrop-blur-2xl border border-yellow-400/30 p-10 rounded-[4rem] text-center relative pt-20 group scale-110 shadow-[0_0_100px_rgba(250,204,21,0.1)]">
-              <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full bg-zinc-900 border-4 border-yellow-400 overflow-hidden shadow-[0_0_40px_rgba(250,204,21,0.4)]">
-                {top3[0].avatar ? <img src={top3[0].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-yellow-400">{top3[0].name[0]}</div>}
+            <div className="w-full max-w-[320px] md:max-w-none order-1 md:order-2 bg-gradient-to-b from-yellow-400/20 to-transparent backdrop-blur-2xl border border-yellow-400/30 p-8 md:p-10 rounded-[3rem] md:rounded-[4rem] text-center relative pt-20 md:pt-20 group scale-100 md:scale-110 shadow-[0_0_100px_rgba(250,204,21,0.15)] mx-auto md:mx-0">
+              <div className="absolute -top-14 left-1/2 -translate-x-1/2 w-28 md:w-32 h-28 md:h-32 rounded-full bg-zinc-900 border-[3px] md:border-4 border-yellow-400 overflow-hidden shadow-[0_0_40px_rgba(250,204,21,0.4)]">
+                {top3[0].avatar ? <img src={top3[0].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl md:text-4xl font-bold text-yellow-400">{top3[0].name[0]}</div>}
               </div>
-              <Trophy className="absolute top-6 right-10 w-8 h-8 text-yellow-400 animate-pulse" />
-              <div className="text-yellow-400 font-black text-6xl mb-4 italic drop-shadow-2xl">#1</div>
-              <h3 className="text-2xl font-black text-white uppercase mb-6 tracking-tight">{top3[0].name}</h3>
-              <div className="inline-block px-8 py-4 bg-yellow-400 text-black rounded-full font-black text-sm shadow-xl shadow-yellow-400/20">
+              <Trophy className="absolute top-4 md:top-6 right-6 md:right-10 w-6 md:w-8 h-6 md:h-8 text-yellow-400 animate-pulse keep-colors" strokeWidth={1.5} />
+              <div className="text-yellow-400 font-black text-5xl md:text-6xl mb-4 italic drop-shadow-2xl keep-colors">#1</div>
+              <h3 className="text-xl md:text-2xl font-black text-white uppercase mb-6 tracking-tight truncate px-2">{top3[0].name}</h3>
+              <div className="inline-block px-8 py-4 bg-yellow-400 text-black rounded-full font-black text-sm shadow-xl shadow-yellow-400/20 keep-colors">
                 ${top3[0].balance}
               </div>
             </div>
@@ -1119,13 +1149,13 @@ function App() {
 
           {/* 3rd Place */}
           {top3[2] && (
-            <div className="order-3 md:order-3 bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[3rem] text-center relative pt-16 group hover:border-orange-900/30 transition-all">
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-zinc-800 border-4 border-orange-800/50 overflow-hidden shadow-2xl">
-                {top3[2].avatar ? <img src={top3[2].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-bold">{top3[2].name[0]}</div>}
+            <div className="w-full max-w-[280px] md:max-w-none order-3 md:order-3 bg-zinc-900/40 backdrop-blur-xl border border-white/5 p-6 md:p-8 rounded-[2.5rem] md:rounded-[3rem] text-center relative pt-14 md:pt-16 group hover:border-orange-900/30 transition-all shadow-sm mx-auto md:mx-0">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-20 md:w-24 h-20 md:h-24 rounded-full bg-zinc-800 border-[3px] md:border-4 border-orange-800/50 overflow-hidden shadow-2xl">
+                {top3[2].avatar ? <img src={top3[2].avatar} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl md:text-2xl font-bold">{top3[2].name[0]}</div>}
               </div>
-              <div className="text-orange-900 font-black text-4xl mb-2 opacity-40 italic">#3</div>
-              <h3 className="text-lg font-bold text-white uppercase mb-4">{top3[2].name}</h3>
-              <div className="inline-block px-4 py-2 bg-zinc-800/50 rounded-full text-zinc-300 font-bold text-xs border border-white/5">
+              <div className="text-orange-900 font-black text-3xl md:text-4xl mb-2 opacity-40 italic">#3</div>
+              <h3 className="text-base md:text-lg font-bold text-white uppercase mb-4 truncate px-2">{top3[2].name}</h3>
+              <div className="inline-block px-4 py-2 bg-zinc-800/80 rounded-full text-zinc-300 font-bold text-xs border border-white/5 shadow-inner">
                 ${top3[2].balance}
               </div>
             </div>
@@ -1134,36 +1164,41 @@ function App() {
 
         {/* Full List */}
         <div className="max-w-4xl mx-auto">
-          <div className="bg-zinc-900/30 border border-white/5 rounded-[2.5rem] overflow-hidden backdrop-blur-sm">
-            <div className="grid grid-cols-12 p-6 border-b border-white/5 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+          <div className="bg-zinc-900/30 border border-white/5 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden backdrop-blur-md shadow-lg">
+            <div className="hidden md:grid grid-cols-12 p-6 border-b border-white/5 text-[10px] font-black text-zinc-500 uppercase tracking-widest bg-zinc-950/50">
               <div className="col-span-1 pl-4">{t('rankLabel')}</div>
               <div className="col-span-7">{t('studentLabel')}</div>
               <div className="col-span-2 text-center">{t('classLabel')}</div>
               <div className="col-span-2 text-right pr-4">{t('balanceLabel')}</div>
             </div>
             {others.map((user, idx) => (
-              <div key={user.id} className="grid grid-cols-12 p-8 hover:bg-white/[0.02] transition-colors items-center border-b last:border-0 border-white/5 group">
-                <div className="col-span-1 pl-4 font-black text-xl text-zinc-700 italic group-hover:text-zinc-500 transition-colors">
-                  {idx + 4}
-                </div>
-                <div className="col-span-7 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center font-bold text-sm text-white group-hover:border-yellow-400/50 transition-colors overflow-hidden">
-                    {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name[0]}
+              <div key={user.id} className="flex flex-col md:grid md:grid-cols-12 p-4 md:p-8 hover:bg-white/[0.02] transition-colors items-start md:items-center border-b last:border-0 border-white/5 group gap-2 md:gap-0">
+                <div className="flex items-center gap-3 md:contents">
+                  <div className="md:col-span-1 md:pl-4 font-black text-lg md:text-xl text-zinc-700 italic group-hover:text-zinc-500 transition-colors">
+                    #{idx + 4}
                   </div>
-                  <span className="font-bold text-white uppercase tracking-tight group-hover:text-yellow-400 transition-colors">{user.name}</span>
+                  <div className="md:col-span-7 flex items-center gap-4 w-full md:w-auto">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center font-bold text-sm text-white group-hover:border-yellow-400/50 transition-colors overflow-hidden shadow-inner shrink-0">
+                      {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name[0]}
+                    </div>
+                    <span className="font-bold text-white text-sm md:text-base uppercase tracking-tight group-hover:text-yellow-400 transition-colors truncate">{user.name}</span>
+                  </div>
                 </div>
-                <div className="col-span-2 text-center">
-                  <span className="text-[10px] bg-zinc-800 text-zinc-500 px-3 py-1.5 rounded-lg border border-white/5 font-bold uppercase">{user.grade || 'N/A'}</span>
-                </div>
-                <div className="col-span-2 text-right pr-4 font-black text-white tabular-nums">
-                  ${user.balance}
+                
+                <div className="flex md:contents w-full justify-between items-center mt-2 md:mt-0 pl-11 md:pl-0">
+                  <div className="md:col-span-2 md:text-center text-left">
+                    <span className="text-[9px] md:text-[10px] bg-zinc-800/80 text-zinc-400 px-3 py-1.5 rounded-lg border border-white/5 font-bold uppercase shadow-inner block md:inline-block w-max">{user.grade || 'N/A'}</span>
+                  </div>
+                  <div className="md:col-span-2 md:text-right md:pr-4 font-black text-yellow-500 md:text-white text-base md:text-lg tabular-nums">
+                    ${user.balance}
+                  </div>
                 </div>
               </div>
             ))}
             {sortedUsers.length === 0 && (
               <div className="py-20 text-center">
-                <div className="text-zinc-800 text-6xl font-black mb-4 uppercase tracking-tighter">{t('noGlory')}</div>
-                <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">{t('waitingLegends')}</p>
+                <div className="text-zinc-800 text-4xl md:text-6xl font-black mb-4 uppercase tracking-tighter">{t('noGlory')}</div>
+                <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px] md:text-xs">{t('waitingLegends')}</p>
               </div>
             )}
           </div>
@@ -1174,34 +1209,34 @@ function App() {
 
   const renderGrades = () => {
     return (
-      <div className="flex-1 p-10 overflow-y-auto">
-        <header className="mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter text-left">{t('myGradesTitle')}</h1>
+      <div className="flex-1 p-6 md:p-10 overflow-y-auto">
+        <header className="mb-8 md:mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 uppercase tracking-tighter text-left">{t('myGradesTitle')}</h1>
           <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">{t('trackPerfDesc')}</p>
         </header>
 
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {grades.map((grade, idx) => (
-            <div key={idx} className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2.5rem] flex justify-between items-center group hover:border-yellow-400/20 transition-all">
-              <div className="flex items-center gap-6">
-                <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl font-bold text-yellow-400 border border-zinc-700 group-hover:bg-yellow-400 group-hover:text-black transition-all">
+            <div key={idx} className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] flex flex-col sm:flex-row justify-between items-start sm:items-center group hover:border-yellow-400/20 transition-all shadow-sm gap-4 sm:gap-0">
+              <div className="flex items-center gap-4 md:gap-6 w-full sm:w-auto">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-zinc-800 rounded-2xl flex items-center justify-center text-xl md:text-2xl font-bold text-yellow-400 border border-white/5 group-hover:bg-yellow-400 group-hover:text-black transition-all shadow-inner shrink-0">
                   {grade.score}%
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white uppercase tracking-tight mb-1">{grade.subject}</h3>
-                  <p className="text-zinc-500 text-sm font-medium">{grade.comment || t('noComment')}</p>
+                  <h3 className="text-xl md:text-2xl font-bold text-white uppercase tracking-tight mb-1 leading-none">{grade.subject}</h3>
+                  <p className="text-zinc-400 text-xs md:text-sm font-medium">{grade.comment || t('noComment')}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">{t('assignedDate')}</div>
-                <div className="text-white font-bold tracking-tight">{grade.date}</div>
+              <div className="w-full sm:w-auto sm:text-right mt-2 sm:mt-0 pt-4 sm:pt-0 border-t border-white/5 sm:border-0 flex sm:block justify-between items-center">
+                <div className="text-[9px] md:text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">{t('assignedDate')}</div>
+                <div className="text-white font-bold tracking-tight text-sm">{grade.date}</div>
               </div>
             </div>
           ))}
           {grades.length === 0 && (
-            <div className="text-center py-40">
-              <div className="text-zinc-800 text-6xl font-black mb-4 uppercase tracking-tighter">{t('none')}</div>
-              <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs">{t('noGradesYet')}</p>
+            <div className="text-center py-20 md:py-40 bg-zinc-900/20 rounded-[2.5rem] border border-dashed border-white/5">
+              <div className="text-zinc-800 text-4xl md:text-6xl font-black mb-4 uppercase tracking-tighter">{t('none')}</div>
+              <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px] md:text-xs">{t('noGradesYet')}</p>
             </div>
           )}
         </div>
@@ -1211,40 +1246,40 @@ function App() {
 
   const renderAdminStudents = () => {
     return (
-      <div className="flex-1 p-10 overflow-y-auto">
-        <header className="mb-12 flex justify-between items-end">
+      <div className="flex-1 p-6 md:p-10 overflow-y-auto">
+        <header className="mb-8 md:mb-12 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2 uppercase tracking-tighter text-left">Student Management</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 uppercase tracking-tighter text-left">Student Management</h1>
             <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">Assign grades and track performance</p>
           </div>
           <button 
             onClick={fetchUsers}
-            className="px-6 py-3 bg-zinc-800 border border-zinc-700 rounded-2xl text-[10px] font-bold text-zinc-400 uppercase tracking-widest hover:text-yellow-400 hover:border-yellow-400/50 transition-all flex items-center gap-2 group"
+            className="w-full sm:w-auto px-6 py-4 md:py-3 bg-zinc-800/80 border border-white/5 shadow-inner rounded-xl md:rounded-2xl text-[10px] font-bold text-zinc-400 uppercase tracking-widest hover:text-yellow-400 hover:border-yellow-400/50 transition-all flex items-center justify-center gap-2 group"
           >
-            <Database className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
+            <Database className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500 keep-colors" />
             Refresh Data
           </button>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
           {allUsers.filter(u => u.role?.toLowerCase() === 'student').map(user => (
-            <div key={user.id} className="bg-zinc-900 border border-zinc-800 p-6 rounded-[2rem] hover:border-yellow-400/20 transition-all group">
+            <div key={user.id} className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 p-6 rounded-[2rem] hover:border-yellow-400/20 transition-all shadow-sm group">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xl font-bold text-white uppercase overflow-hidden group-hover:border-yellow-400/40 transition-colors">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-zinc-800 border border-white/10 flex items-center justify-center text-lg md:text-xl font-bold text-white uppercase overflow-hidden group-hover:border-yellow-400/40 transition-colors shadow-inner shrink-0">
                   {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name[0]}
                 </div>
-                <div>
-                  <h3 className="font-bold text-white text-lg leading-tight uppercase group-hover:text-yellow-400 transition-colors">{user.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest py-1 px-2 bg-zinc-800 rounded-md">Class {user.grade || 'N/A'}</span>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-white text-base md:text-lg leading-tight uppercase group-hover:text-yellow-400 transition-colors truncate">{user.name}</h3>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-zinc-400 text-[9px] font-bold uppercase tracking-widest py-1 px-2.5 bg-zinc-800/80 shadow-inner rounded-lg border border-white/5 select-none">Class {user.grade || 'N/A'}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 bg-zinc-800/30 rounded-2xl border border-white/5 mb-6">
-                <div className="flex justify-between items-center mb-1">
+              <div className="p-4 bg-zinc-950/50 rounded-2xl border border-white/5 mb-6 shadow-inner">
+                <div className="flex justify-between items-center">
                   <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Balance</span>
-                  <span className="text-xl font-bold text-white tabular-nums">${user.balance}</span>
+                  <span className="text-xl font-bold text-yellow-500 tabular-nums">${user.balance}</span>
                 </div>
               </div>
 
@@ -1254,15 +1289,15 @@ function App() {
                     setSelectedUserForGrading(user);
                     setShowGradingModal(true);
                   }}
-                  className="py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-[10px] font-bold text-yellow-400 uppercase tracking-widest hover:bg-yellow-400 hover:text-black hover:border-yellow-400 transition-all shadow-sm flex items-center justify-center gap-2"
+                  className="py-3 md:py-4 bg-yellow-400 text-black rounded-xl text-[10px] font-bold uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(250,204,21,0.2)] flex items-center justify-center gap-2"
                 >
-                  Grade <ArrowUpRight className="w-3.5 h-3.5" />
+                  Grade <ArrowUpRight className="w-3 h-3 keep-colors" strokeWidth={2.5} />
                 </button>
                 <button 
                   onClick={() => {
                      setShowSendMessageModal({show: true, recipientId: user.id, recipientName: user.name});
                   }}
-                  className="py-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-[10px] font-bold text-zinc-400 uppercase tracking-widest hover:text-white hover:border-zinc-600 transition-all flex items-center justify-center gap-2"
+                  className="py-3 md:py-4 bg-zinc-800/80 border border-white/5 shadow-inner rounded-xl text-[10px] font-bold text-zinc-400 uppercase tracking-widest hover:text-white hover:border-zinc-600 transition-all flex items-center justify-center gap-2"
                 >
                   Message
                 </button>
@@ -1270,21 +1305,21 @@ function App() {
             </div>
           ))}
           {allUsers.filter(u => u.role?.toLowerCase() === 'student').length === 0 && (
-            <div className="col-span-full py-32 flex flex-col items-center justify-center bg-zinc-900/30 border border-dashed border-zinc-800 rounded-[2.5rem]">
+            <div className="col-span-full py-20 md:py-32 flex flex-col items-center justify-center bg-zinc-900/30 border border-dashed border-white/5 rounded-[2.5rem]">
               <Database className="w-12 h-12 text-zinc-800 mb-6" />
               <div className="text-zinc-500 font-bold uppercase tracking-[4px] text-xs">No Students Found</div>
-              <p className="text-zinc-700 text-[10px] mt-2 font-medium uppercase tracking-widest text-center">Verify database connection or RLS policies</p>
+              <p className="text-zinc-700 text-[10px] mt-2 font-medium uppercase tracking-widest text-center px-4">Verify database connection or RLS policies</p>
             </div>
           )}
         </div>
 
         {/* Grading Modal */}
         {showGradingModal && selectedUserForGrading && (
-          <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-            <div className="bg-zinc-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-zinc-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] p-6 md:p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 my-8">
               <div className="mb-8 flex justify-between items-start">
                 <div>
-                  <h2 className="text-3xl font-bold text-white mb-2 uppercase tracking-tighter">Assign Grade</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 uppercase tracking-tighter">Assign Grade</h2>
                   <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">For Student: {selectedUserForGrading.name}</p>
                 </div>
                 <button onClick={() => setShowGradingModal(false)} className="text-zinc-600 hover:text-white transition-colors">&times;</button>
@@ -1296,7 +1331,7 @@ function App() {
                   <input 
                     type="text" 
                     placeholder="e.g. Mathematics"
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-yellow-400 transition-all font-medium"
+                    className="w-full bg-zinc-950/50 border border-white/5 shadow-inner rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all text-sm font-medium"
                     value={newGrade.subject}
                     onChange={(e) => setNewGrade({ ...newGrade, subject: e.target.value })}
                   />
@@ -1306,7 +1341,7 @@ function App() {
                   <input 
                     type="number" 
                     placeholder="Score percentage"
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-yellow-400 transition-all font-medium"
+                    className="w-full bg-zinc-950/50 border border-white/5 shadow-inner rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all text-sm font-medium tabular-nums"
                     value={newGrade.score || ''}
                     onChange={(e) => setNewGrade({ ...newGrade, score: parseInt(e.target.value) })}
                   />
@@ -1315,23 +1350,23 @@ function App() {
                   <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3 ml-1">Comments</label>
                   <textarea 
                     placeholder="Enter teacher feedback..."
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-yellow-400 transition-all font-medium h-32 resize-none"
+                    className="w-full bg-zinc-950/50 border border-white/5 shadow-inner rounded-2xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all text-sm font-medium h-32 resize-none"
                     value={newGrade.comment}
                     onChange={(e) => setNewGrade({ ...newGrade, comment: e.target.value })}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mt-10">
+              <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t border-white/5">
                 <button 
                   onClick={() => setShowGradingModal(false)}
-                  className="py-4 bg-transparent border border-zinc-800 rounded-2xl text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white hover:border-zinc-700 transition-all"
+                  className="w-full sm:flex-1 py-4 bg-zinc-800/80 border border-white/5 shadow-inner rounded-2xl text-[10px] font-bold text-zinc-400 hover:text-white uppercase tracking-widest hover:bg-zinc-700 transition-all"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={submitGrade}
-                  className="py-4 bg-yellow-400 text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-yellow-300 transition-all shadow-lg shadow-yellow-400/20"
+                  className="w-full sm:flex-1 py-4 bg-yellow-400 text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(250,204,21,0.3)]"
                 >
                   Confirm Grade
                 </button>
