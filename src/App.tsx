@@ -79,6 +79,11 @@ function App() {
   const [newGrade, setNewGrade] = useState({ subject: '', score: 0, comment: '' });
   const [newMission, setNewMission] = useState({ title: '', description: '', reward: 0, deadline: '' });
   const [animatedBalance, setAnimatedBalance] = useState(0);
+  
+  // Avatar Upload State
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Authentication Setup
   useEffect(() => {
@@ -453,6 +458,50 @@ function App() {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploadingAvatar(true);
+      if (!e.target.files || e.target.files.length === 0) {
+        throw new Error('You must select an image to upload.');
+      }
+
+      const file = e.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${currentUser?.id}-${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      let { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', currentUser?.id);
+
+      if (updateError) throw updateError;
+      
+      setCurrentUser(prev => prev ? { ...prev, avatar: publicUrl } : null);
+      setAllUsers(prev => prev.map(u => u.id === currentUser?.id ? { ...u, avatar: publicUrl } : u));
+      
+      alert(t('avatarUpdated') || 'Avatar updated successfully!');
+      setShowAvatarModal(false);
+    } catch (error: any) {
+      alert('Error uploading avatar: ' + error.message);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const Sidebar = ({ role }: { role: string }) => {
     const navItems = role === 'student' 
       ? [
@@ -519,7 +568,11 @@ function App() {
             <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/5 blur-3xl -mr-12 -mt-12 group-hover:bg-amber-400/10 transition-colors" />
             <div className="flex items-center gap-4 relative z-10">
               <div className="relative">
-                <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center font-black text-amber-400 border border-white/10 overflow-hidden ring-2 ring-amber-400/20 group-hover:ring-amber-400 transition-all">
+                <div 
+                  onClick={() => setShowAvatarModal(true)}
+                  className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center font-black text-amber-400 border border-white/10 overflow-hidden ring-2 ring-amber-400/20 group-hover:ring-amber-400 transition-all cursor-pointer hover:scale-105"
+                  title="Update Avatar"
+                >
                   {currentUser?.avatar?.startsWith('http') ? (
                      <img src={currentUser.avatar} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -1413,6 +1466,50 @@ function App() {
            </div>
         </div>
       )}
+
+      {/* Avatar Upload Modal */}
+      {showAvatarModal && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+           <div className="bg-zinc-900 border border-white/10 w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col items-center text-center">
+              <div className="w-24 h-24 rounded-3xl bg-zinc-800 flex items-center justify-center font-black text-4xl text-yellow-400 border-2 border-dashed border-zinc-700 mb-6 overflow-hidden">
+                {currentUser?.avatar?.startsWith('http') ? (
+                  <img src={currentUser.avatar} alt="Current Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{currentUser?.avatar || 'U'}</span>
+                )}
+              </div>
+              
+              <h2 className="text-2xl font-bold text-white mb-2">{t('updateAvatar') || 'Update Avatar'}</h2>
+              <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-8">{t('uploadSquareImage') || 'Upload a square image'}</p>
+              
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleAvatarUpload} 
+                accept="image/*" 
+                className="hidden" 
+              />
+              
+              <div className="flex flex-col gap-3 w-full">
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="w-full py-4 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-zinc-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {uploadingAvatar ? (t('uploading') || 'Uploading...') : (t('selectImage') || 'Select Image')}
+                </button>
+                <button 
+                  onClick={() => setShowAvatarModal(false)}
+                  disabled={uploadingAvatar}
+                  className="w-full py-4 bg-transparent border border-zinc-800 rounded-2xl text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white hover:border-zinc-700 transition-all"
+                >
+                  {t('cancel') || 'Cancel'}
+                </button>
+              </div>
+           </div>
+        </div>
+      )}
+
     </div>
   );
 }
