@@ -55,14 +55,14 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] uiverse-bg flex items-center justify-center p-4 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 relative overflow-hidden font-sans">
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-yellow-400/5 rounded-full blur-[120px] animate-pulse keep-colors" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-yellow-400/5 rounded-full blur-[120px] animate-pulse delay-700 keep-colors" />
       </div>
 
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-500">
-        <div className="liquid-glass p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative">
+        <div className="bg-zinc-900/80 backdrop-blur-2xl p-8 md:p-10 rounded-[2.5rem] border border-white/5 shadow-2xl relative">
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-zinc-950 rounded-3xl rotate-12 flex items-center justify-center shadow-lg transform hover:rotate-0 transition-transform duration-500 overflow-hidden border border-white/5 group">
             <img src={logo} className="w-full h-full object-cover -rotate-12 group-hover:rotate-0 transition-transform" />
           </div>

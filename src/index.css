@@ -64,6 +64,15 @@ html.theme-light {
 .uiverse-bg {
   position: relative;
   background-color: #000;
+  overflow: hidden;
+}
+
+.uiverse-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
   --c: #09f;
   background-image: 
     radial-gradient(4px 100px at 0px 235px, var(--c), #0000),
@@ -116,13 +125,14 @@ html.theme-light {
     300px 158px, 300px 158px, 300px 158px,
     300px 210px, 300px 210px, 300px 210px;
   animation: hi 150s linear infinite;
+  opacity: 0.1;
 }
 
 .uiverse-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: -1;
   pointer-events: none;
   background-image: radial-gradient(
     circle at 50% 50%,
@@ -132,7 +142,7 @@ html.theme-light {
   );
   background-size: 8px 8px;
   animation: hii 10s linear infinite;
-  opacity: 0.3;
+  opacity: 0.15;
 }
 
 /* Glassmorphism Cards */

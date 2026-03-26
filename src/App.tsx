@@ -1039,7 +1039,7 @@ function App() {
     
      if (currentRole === 'login') {
       return (
-        <div className="relative overflow-hidden bg-black min-h-screen uiverse-bg">
+        <div className="relative overflow-hidden bg-black min-h-screen">
           <div className="absolute top-8 left-8 z-50">
             <LanguageSwitcher />
           </div>
