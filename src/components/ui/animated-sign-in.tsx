@@ -63,8 +63,8 @@ const LoginPage: React.FC = () => {
 
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in duration-500">
         <div className="bg-zinc-900/80 backdrop-blur-2xl p-8 md:p-10 rounded-[2.5rem] border border-white/5 shadow-2xl relative">
-          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-zinc-950 rounded-3xl rotate-12 flex items-center justify-center shadow-lg transform hover:rotate-0 transition-transform duration-500 overflow-hidden border border-white/5 group">
-            <img src={logo} className="w-full h-full object-cover -rotate-12 group-hover:rotate-0 transition-transform" />
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-zinc-950 rounded-3xl rotate-12 flex items-center justify-center shadow-lg transform hover:rotate-0 transition-all duration-500 overflow-hidden border border-white/5 group">
+            <img src={logo} className="w-full h-full object-cover scale-[1.5] -rotate-12 group-hover:rotate-0 transition-all transform-gpu" />
           </div>
 
           <div className="text-center mt-10 mb-10">

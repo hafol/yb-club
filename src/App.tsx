@@ -547,8 +547,8 @@ function App() {
       <aside className="w-72 liquid-glass border-r border-white/5 h-screen flex flex-col sticky top-0 overflow-hidden">
         <div className="p-8">
           <div className="flex items-center gap-4 group cursor-pointer">
-            <div className="w-12 h-12 bg-zinc-900 rounded-xl flex items-center justify-center shadow-lg shadow-black/50 group-hover:scale-105 transition-transform duration-500 overflow-hidden border border-white/10">
-              <img src={logo} className="w-full h-full object-cover" />
+            <div className="w-12 h-12 bg-zinc-950 rounded-xl flex items-center justify-center shadow-lg shadow-black/50 group-hover:scale-105 transition-transform duration-500 overflow-hidden border border-white/10">
+              <img src={logo} className="w-full h-full object-cover scale-[1.5] transform-gpu" />
             </div>
             <div>
               <div className="font-black text-2xl text-white tracking-tighter leading-none">YB CLUB</div>
