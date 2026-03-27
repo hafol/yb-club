@@ -15,23 +15,84 @@
 
 /* Premium Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(250, 204, 21, 0.3);
+  background: rgba(250, 204, 21, 0.2);
+  border-color: rgba(250, 204, 21, 0.3);
 }
 
-/* Light Theme Invert Strategy for Zero-Bug Theme Switch */
-html.theme-light {
-  filter: invert(1) hue-rotate(180deg);
+:root {
+  --bg-main: #050505;
+  --bg-card: rgba(255, 255, 255, 0.02);
+  --bg-card-hover: rgba(255, 255, 255, 0.05);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.5);
+  --text-muted: rgba(255, 255, 255, 0.3);
+  --border-color: rgba(255, 255, 255, 0.06);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --glass-blur: 16px;
+  --glass-saturate: 180%;
+  --accent-yellow: #facc15;
+  --accent-yellow-glow: rgba(250, 204, 21, 0.3);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.05);
+  --uiverse-dot: #09f;
+  --uiverse-opacity: 0.1;
+  --bg-glow-brightness: 1.2;
+}
+
+.theme-light {
+  --bg-main: #f8f9fa;
+  --bg-card: rgba(255, 255, 255, 0.82);
+  --bg-card-hover: rgba(255, 255, 255, 1);
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+  --glass-blur: 12px;
+  --glass-saturate: 140%;
+  --accent-yellow-glow: rgba(250, 204, 21, 0.1);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.1);
+  --uiverse-dot: #3b82f6;
+  --uiverse-opacity: 0.06;
+  --bg-glow-brightness: 0.85;
+}
+
+@layer base {
+  body {
+    @apply antialiased transition-colors duration-500;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+  }
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-yellow-glow);
+  border-color: var(--accent-yellow);
 }
 
 /* Uiverse Background Animation */
@@ -57,14 +118,15 @@ html.theme-light {
 }
 
 @keyframes hii {
-  0% { backdrop-filter: blur(1em) brightness(6) hue-rotate(0deg); }
-  to { backdrop-filter: blur(1em) brightness(6) hue-rotate(360deg); }
+  0% { backdrop-filter: blur(1em) brightness(var(--bg-glow-brightness)) hue-rotate(0deg); }
+  to { backdrop-filter: blur(1em) brightness(var(--bg-glow-brightness)) hue-rotate(360deg); }
 }
 
 .uiverse-bg {
   position: relative;
-  background-color: #000;
+  background-color: var(--bg-main);
   overflow: hidden;
+  transition: background-color 0.5s ease;
 }
 
 .uiverse-bg::before {
@@ -73,7 +135,7 @@ html.theme-light {
   inset: 0;
   z-index: -2;
   pointer-events: none;
-  --c: #09f;
+  --c: var(--uiverse-dot);
   background-image: 
     radial-gradient(4px 100px at 0px 235px, var(--c), #0000),
     radial-gradient(4px 100px at 300px 235px, var(--c), #0000),
@@ -89,43 +151,15 @@ html.theme-light {
     radial-gradient(1.5px 1.5px at 150px 126.5px, var(--c) 100%, #0000 150%),
     radial-gradient(4px 100px at 0px 204px, var(--c), #0000),
     radial-gradient(4px 100px at 300px 204px, var(--c), #0000),
-    radial-gradient(1.5px 1.5px at 150px 102px, var(--c) 100%, #0000 150%),
-    radial-gradient(4px 100px at 0px 134px, var(--c), #0000),
-    radial-gradient(4px 100px at 300px 134px, var(--c), #0000),
-    radial-gradient(1.5px 1.5px at 150px 67px, var(--c) 100%, #0000 150%),
-    radial-gradient(4px 100px at 0px 179px, var(--c), #0000),
-    radial-gradient(4px 100px at 300px 179px, var(--c), #0000),
-    radial-gradient(1.5px 1.5px at 150px 89.5px, var(--c) 100%, #0000 150%),
-    radial-gradient(4px 100px at 0px 299px, var(--c), #0000),
-    radial-gradient(4px 100px at 300px 299px, var(--c), #0000),
-    radial-gradient(1.5px 1.5px at 150px 149.5px, var(--c) 100%, #0000 150%),
-    radial-gradient(4px 100px at 0px 215px, var(--c), #0000),
-    radial-gradient(4px 100px at 300px 215px, var(--c), #0000),
-    radial-gradient(1.5px 1.5px at 150px 107.5px, var(--c) 100%, #0000 150%),
-    radial-gradient(4px 100px at 0px 281px, var(--c), #0000),
-    radial-gradient(4px 100px at 300px 281px, var(--c), #0000),
-    radial-gradient(1.5px 1.5px at 150px 140.5px, var(--c) 100%, #0000 150%),
-    radial-gradient(4px 100px at 0px 158px, var(--c), #0000),
-    radial-gradient(4px 100px at 300px 158px, var(--c), #0000),
-    radial-gradient(1.5px 1.5px at 150px 79px, var(--c) 100%, #0000 150%),
-    radial-gradient(4px 100px at 0px 210px, var(--c), #0000),
-    radial-gradient(4px 100px at 300px 210px, var(--c), #0000),
-    radial-gradient(1.5px 1.5px at 150px 105px, var(--c) 100%, #0000 150%);
+    radial-gradient(1.5px 1.5px at 150px 102px, var(--c) 100%, #0000 150%);
   background-size:
     300px 235px, 300px 235px, 300px 235px,
     300px 252px, 300px 252px, 300px 252px,
     300px 150px, 300px 150px, 300px 150px,
     300px 253px, 300px 253px, 300px 253px,
-    300px 204px, 300px 204px, 300px 204px,
-    300px 134px, 300px 134px, 300px 134px,
-    300px 179px, 300px 179px, 300px 179px,
-    300px 299px, 300px 299px, 300px 299px,
-    300px 215px, 300px 215px, 300px 215px,
-    300px 281px, 300px 281px, 300px 281px,
-    300px 158px, 300px 158px, 300px 158px,
-    300px 210px, 300px 210px, 300px 210px;
+    300px 204px, 300px 204px, 300px 204px;
   animation: hi 150s linear infinite;
-  opacity: 0.1;
+  opacity: var(--uiverse-opacity);
 }
 
 .uiverse-bg::after {
@@ -138,34 +172,56 @@ html.theme-light {
     circle at 50% 50%,
     #0000 0,
     #0000 2px,
-    hsl(0 0 4%) 2px
+    var(--text-primary) 2px
   );
   background-size: 8px 8px;
   animation: hii 10s linear infinite;
-  opacity: 0.15;
+  opacity: calc(var(--uiverse-opacity) * 1.5);
 }
 
 /* Glassmorphism Cards */
 .liquid-glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--border-color);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .liquid-glass:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.3);
 }
 
-/* Double-invert media and specific areas to keep original colors */
-html.theme-light img,
-html.theme-light video,
-html.theme-light .keep-colors,
-html.theme-light .uiverse-bg,
-html.theme-light .uiverse-bg::after {
-  filter: invert(1) hue-rotate(180deg);
+.theme-light .liquid-glass:hover {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
 }
+
+.glass-card-premium {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255,255,255,0) 100%);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border-color);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Clean up App specifically */
+.text-white { color: var(--text-primary) !important; }
+.text-zinc-500 { color: var(--text-secondary) !important; }
+.text-zinc-400 { color: var(--text-muted) !important; }
+.bg-zinc-950 { background-color: var(--bg-main) !important; }
+.bg-black { background-color: var(--bg-main) !important; }
+.border-white\/5 { border-color: var(--border-color) !important; }
+.border-zinc-800 { border-color: var(--border-color) !important; }
+

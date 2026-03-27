@@ -12,11 +12,11 @@ import {
   Sun, Moon, Wallet, Target, GraduationCap, Menu, X
 } from 'lucide-react';
 
-import cashIcon from './assets/dashboard/cash.png';
-import profilesIcon from './assets/dashboard/profiles.png';
-import missionsIcon from './assets/dashboard/missions.png';
-import medalIcon from './assets/dashboard/medal.png';
 import logo from './assets/apple-touch-icon.png';
+import { toast } from 'sonner';
+import { ToastProvider } from './components/ui/toast-provider';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SkeletonBox } from './components/ui/skeleton-loader';
 
 interface UserData {
   id: string;
@@ -231,9 +231,9 @@ function App() {
       }]);
     
     if (error) {
-       alert('Error sending message: ' + error.message);
+       toast.error('Error sending message: ' + error.message);
     } else {
-       alert(t('messageSent') || 'Message sent!');
+       toast.success(t('messageSent') || 'Message sent!');
        setShowSendMessageModal({show: false, recipientId: '', recipientName: ''});
        setNewMessageContent('');
     }
@@ -337,7 +337,7 @@ function App() {
 
   const submitGrade = async () => {
     if (!selectedUserForGrading || !newGrade.subject || newGrade.score <= 0) {
-      alert('Please fill all fields correctly');
+      toast.error('Please fill all fields correctly');
       return;
     }
 
@@ -351,14 +351,14 @@ function App() {
       }]);
 
     if (!error) {
-      alert('Grade assigned successfully!');
+      toast.success('Grade assigned successfully!');
       setShowGradingModal(false);
       setNewGrade({ subject: '', score: 0, comment: '' });
       // Refresh user data to show new average if needed
       fetchUsers();
     } else {
       console.error('Error assigning grade:', error);
-      alert(`Error assigning grade: ${error.message}`);
+      toast.error(`Error assigning grade: ${error.message}`);
     }
   };
 
@@ -387,7 +387,7 @@ function App() {
 
   const createMission = async () => {
     if (!newMission.title || !newMission.description || !newMission.reward || !newMission.deadline) {
-      alert('Please fill in all fields (Title, Description, Reward, and Deadline).');
+      toast.error('Please fill in all fields (Title, Description, Reward, and Deadline).');
       return;
     }
 
@@ -404,13 +404,13 @@ function App() {
 
     if (!error) {
       console.log('Mission created:', data);
-      alert('Mission created successfully!');
+      toast.success('Mission created successfully!');
       setShowAddMissionModal(false);
       setNewMission({ title: '', description: '', reward: 0, deadline: '' });
       fetchMissions();
     } else {
       console.error('Error creating mission:', error);
-      alert(`Error creating mission: ${error.message}`);
+      toast.error(`Error creating mission: ${error.message}`);
     }
   };
 
@@ -469,10 +469,10 @@ function App() {
         setBalance(profile.balance);
       }
       fetchTransactions(currentUser.id);
-      alert('Mission accepted! Reward added to your balance.');
+      toast.success('Mission accepted! Reward added to your balance.');
     } else {
       console.error('Error rewarding student:', error);
-      alert(`Failed to accept mission: ${error.message}`);
+      toast.error(`Failed to accept mission: ${error.message}`);
     }
   };
 
@@ -511,10 +511,10 @@ function App() {
       setCurrentUser(prev => prev ? { ...prev, avatar: publicUrl } : null);
       setAllUsers(prev => prev.map(u => u.id === currentUser?.id ? { ...u, avatar: publicUrl } : u));
       
-      alert(t('avatarUpdated') || 'Avatar updated successfully!');
+      toast.success(t('avatarUpdated') || 'Avatar updated successfully!');
       setShowAvatarModal(false);
     } catch (error: any) {
-      alert('Error uploading avatar: ' + error.message);
+      toast.error('Error uploading avatar: ' + error.message);
     } finally {
       setUploadingAvatar(false);
     }
@@ -1018,34 +1018,45 @@ function App() {
   const renderContent = () => {
     if (currentRole === 'landing') {
       return (
-        <Hero 
-          trustBadge={{ text: t('trustBadge'), icons: ["💼"] }}
-          headline={{ line1: t('startJourney'), line2: t('businessJourney') }}
-          subtitle={t('heroSubtitle')}
-          buttons={{
-            primary: { 
-              text: t('joinClub'), 
-              onClick: () => setCurrentRole('login') 
-            },
-            secondary: { 
-              text: t('learnMore'), 
-              onClick: () => window.open('#', '_blank') 
-            }
-          }}
-          languageSwitcher={<LanguageSwitcher />}
-        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <Hero 
+            trustBadge={{ text: t('trustBadge'), icons: ["💼"] }}
+            headline={{ line1: t('startJourney'), line2: t('businessJourney') }}
+            subtitle={t('heroSubtitle')}
+            buttons={{
+              primary: { 
+                text: t('joinClub'), 
+                onClick: () => setCurrentRole('login') 
+              },
+              secondary: { 
+                text: t('learnMore'), 
+                onClick: () => window.open('#', '_blank') 
+              }
+            }}
+            languageSwitcher={<LanguageSwitcher />}
+          />
+        </motion.div>
       );
     }
     
      if (currentRole === 'login') {
       return (
-        <div className="relative overflow-hidden bg-black min-h-screen">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="relative overflow-hidden bg-black min-h-screen"
+        >
           <div className="absolute top-8 left-8 z-50">
             <LanguageSwitcher />
           </div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-yellow-400/5 blur-[150px] rounded-full -z-10" />
           <LoginPage />
-        </div>
+        </motion.div>
       );
     }
     
@@ -1385,196 +1396,248 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] overflow-hidden antialiased">
-      {renderContent()}
+    <div className="min-h-screen bg-black overflow-hidden antialiased selection:bg-yellow-400 selection:text-black transition-colors duration-500">
+      <ToastProvider />
+      <AnimatePresence mode="wait">
+        {renderContent()}
+      </AnimatePresence>
 
       {/* Global Search Overlay */}
-      {searchQuery.trim() !== '' && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[150] flex items-start justify-center pt-32 p-4">
-          <div className="liquid-glass w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[70vh] flex flex-col">
-            <div className="flex justify-between items-center mb-10">
-              <div>
-                <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">{t('searchResults')}</h2>
-                <div className="h-1 w-20 bg-yellow-400" />
-              </div>
-              <button onClick={() => setSearchQuery('')} className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-white transition-colors">&times;</button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto space-y-10 pr-4">
-              {filteredUsers.length > 0 && (
-                <section>
-                  <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">{t('enrolledStudents')}</h3>
-                  <div className="grid gap-3">
-                    {filteredUsers.map(user => (
-                      <div key={user.id} className="flex items-center justify-between p-5 liquid-glass rounded-3xl hover:border-yellow-400/30 group">
-                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-xl font-bold border border-white/10 group-hover:border-yellow-400/30">
-                              {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover rounded-2xl" /> : user.name[0]}
-                            </div>
-                            <div>
-                               <div className="text-white font-bold uppercase tracking-tight">{user.name}</div>
-                               <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{user.grade} • ${user.balance}</div>
-                            </div>
-                         </div>
-                         <button onClick={() => { setSearchQuery(''); setCurrentPage('leaderboard'); }} className="p-3 bg-zinc-900 rounded-xl text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <ChevronRight className="w-5 h-5" />
-                         </button>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {filteredMissions.length > 0 && (
-                <section>
-                  <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">{t('strategicMissions')}</h3>
-                  <div className="grid gap-4">
-                    {filteredMissions.map(m => (
-                      <div key={m.id} className="p-6 liquid-glass rounded-[2rem] hover:border-yellow-400/30 group">
-                         <div className="flex justify-between items-start mb-4">
-                           <h4 className="text-xl font-bold text-white uppercase tracking-tight group-hover:text-yellow-400 transition-colors">{m.title}</h4>
-                           <span className="text-yellow-400 font-black tabular-nums">+${m.reward}</span>
-                         </div>
-                         <p className="text-sm text-zinc-500 line-clamp-2 mb-6">{m.description}</p>
-                         <button onClick={() => { setSearchQuery(''); setCurrentPage('dashboard'); }} className="text-[10px] font-black text-white hover:text-yellow-400 transition-colors uppercase tracking-[0.2em] flex items-center gap-2">
-                            {t('viewMission')} <ChevronRight className="w-3 h-3" />
-                         </button>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {filteredUsers.length === 0 && filteredMissions.length === 0 && (
-                <div className="text-center py-20">
-                   <div className="text-zinc-800 text-6xl font-black italic tracking-tighter uppercase mb-4">{t('empty')}</div>
-                   <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">{t('noMatchesFound')} "{searchQuery}"</p>
+      <AnimatePresence>
+        {searchQuery.trim() !== '' && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[150] flex items-start justify-center pt-32 p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="liquid-glass w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl max-h-[70vh] flex flex-col"
+            >
+              <div className="flex justify-between items-center mb-10">
+                <div>
+                  <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-2">{t('searchResults')}</h2>
+                  <div className="h-1 w-20 bg-yellow-400" />
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+                <button onClick={() => setSearchQuery('')} className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-white transition-colors">&times;</button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-10 pr-4">
+                {filteredUsers.length > 0 && (
+                  <section>
+                    <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">{t('enrolledStudents')}</h3>
+                    <div className="grid gap-3">
+                      {filteredUsers.map(user => (
+                        <div key={user.id} className="flex items-center justify-between p-5 liquid-glass rounded-3xl hover:border-yellow-400/30 group">
+                           <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-xl font-bold border border-white/10 group-hover:border-yellow-400/30">
+                                {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover rounded-2xl" /> : user.name[0]}
+                              </div>
+                              <div>
+                                 <div className="text-white font-bold uppercase tracking-tight">{user.name}</div>
+                                 <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{user.grade} • ${user.balance}</div>
+                              </div>
+                           </div>
+                           <button onClick={() => { setSearchQuery(''); setCurrentPage('leaderboard'); }} className="p-3 bg-zinc-900 rounded-xl text-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <ChevronRight className="w-5 h-5" />
+                           </button>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {filteredMissions.length > 0 && (
+                  <section>
+                    <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">{t('strategicMissions')}</h3>
+                    <div className="grid gap-4">
+                      {filteredMissions.map(m => (
+                        <div key={m.id} className="p-6 liquid-glass rounded-[2rem] hover:border-yellow-400/30 group">
+                           <div className="flex justify-between items-start mb-4">
+                             <h4 className="text-xl font-bold text-white uppercase tracking-tight group-hover:text-yellow-400 transition-colors">{m.title}</h4>
+                             <span className="text-yellow-400 font-black tabular-nums">+${m.reward}</span>
+                           </div>
+                           <p className="text-sm text-zinc-500 line-clamp-2 mb-6">{m.description}</p>
+                           <button onClick={() => { setSearchQuery(''); setCurrentPage('dashboard'); }} className="text-[10px] font-black text-white hover:text-yellow-400 transition-colors uppercase tracking-[0.2em] flex items-center gap-2">
+                              {t('viewMission')} <ChevronRight className="w-3 h-3" />
+                           </button>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {filteredUsers.length === 0 && filteredMissions.length === 0 && (
+                  <div className="text-center py-20">
+                     <div className="text-zinc-800 text-6xl font-black italic tracking-tighter uppercase mb-4">{t('empty')}</div>
+                     <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">{t('noMatchesFound')} "{searchQuery}"</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Messages Modal */}
-      {showMessagesModal && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-          <div className="liquid-glass w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col max-h-[80vh]">
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <h2 className="text-3xl font-bold text-white uppercase tracking-tight">{t('messages')}</h2>
-                <div className="h-1 w-12 bg-yellow-400 mt-2" />
-              </div>
-              <button onClick={() => setShowMessagesModal(false)} className="text-zinc-500 hover:text-white text-3xl font-light">&times;</button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto pr-4 space-y-4">
-              {messages.map((msg) => (
-                <div key={msg.id} className={`p-6 liquid-glass rounded-3xl transition-all ${msg.is_read ? 'border-none opacity-60' : 'border-yellow-400/30 border-l-4 border-l-yellow-400'}`}>
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="text-[10px] font-black text-yellow-400 uppercase tracking-widest">{msg.sender?.full_name || t('administrator')}</div>
-                    <div className="text-[10px] text-zinc-600 font-bold">{new Date(msg.created_at).toLocaleDateString()}</div>
-                  </div>
-                  <p className="text-zinc-200 text-sm leading-relaxed mb-6">{msg.content}</p>
-                  {!msg.is_read && (
-                    <button 
-                      onClick={() => markMessageAsRead(msg.id)}
-                      className="text-[10px] font-black text-white hover:text-yellow-400 transition-colors uppercase tracking-[0.2em]"
-                    >
-                      {t('markAsRead')}
-                    </button>
-                  )}
-                </div>
-              ))}
-              {messages.length === 0 && (
-                <div className="text-center py-20 text-zinc-500 font-bold uppercase tracking-widest text-xs">{t('noMessages')}</div>
-              )}
-            </div>
-            
-            <button 
-              onClick={() => setShowMessagesModal(false)}
-              className="mt-8 w-full py-4 bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold rounded-2xl flex items-center justify-center gap-2 hover:text-white hover:border-zinc-600 transition-all uppercase tracking-widest text-xs"
+      <AnimatePresence>
+        {showMessagesModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="liquid-glass w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl relative flex flex-col max-h-[80vh]"
             >
-              {t('close')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Send Message Modal */}
-      {showSendMessageModal.show && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-           <div className="liquid-glass w-full max-w-xl rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300">
-              <h2 className="text-2xl font-bold text-white mb-2 italic">{t('sendDirectMessage')}</h2>
-              <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-8">{t('recipient')}: <span className="text-yellow-400">{showSendMessageModal.recipientName}</span></p>
-              
-              <textarea 
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl p-6 text-white focus:outline-none focus:border-yellow-400 transition-all font-medium h-48 resize-none mb-8"
-                placeholder={t('typeMessage')}
-                value={newMessageContent}
-                onChange={(e) => setNewMessageContent(e.target.value)}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={() => setShowSendMessageModal({show: false, recipientId: '', recipientName: ''})}
-                  className="py-4 bg-transparent border border-zinc-800 rounded-2xl text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white hover:border-zinc-700 transition-all"
-                >
-                  {t('cancel')}
-                </button>
-                <button 
-                  onClick={() => sendMessage(showSendMessageModal.recipientId, newMessageContent)}
-                  className="py-4 bg-yellow-400 text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-yellow-300 transition-all"
-                >
-                  {t('sendMessage')}
-                </button>
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-white uppercase tracking-tight">{t('messages')}</h2>
+                  <div className="h-1 w-12 bg-yellow-400 mt-2" />
+                </div>
+                <button onClick={() => setShowMessagesModal(false)} className="text-zinc-500 hover:text-white text-3xl font-light">&times;</button>
               </div>
-           </div>
-        </div>
-      )}
-
-      {/* Avatar Upload Modal */}
-      {showAvatarModal && (
-        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-           <div className="liquid-glass w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl relative animate-in fade-in zoom-in duration-300 flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-3xl bg-zinc-800 flex items-center justify-center font-black text-4xl text-yellow-400 border-2 border-dashed border-zinc-700 mb-6 overflow-hidden">
-                {currentUser?.avatar?.startsWith('http') ? (
-                  <img src={currentUser.avatar} alt="Current Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span>{currentUser?.avatar || 'U'}</span>
+              
+              <div className="flex-1 overflow-y-auto pr-4 space-y-4">
+                {messages.map((msg) => (
+                  <div key={msg.id} className={`p-6 liquid-glass rounded-3xl transition-all ${msg.is_read ? 'border-none opacity-60' : 'border-yellow-400/30 border-l-4 border-l-yellow-400'}`}>
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="text-[10px] font-black text-yellow-400 uppercase tracking-widest">{msg.sender?.full_name || t('administrator')}</div>
+                      <div className="text-[10px] text-zinc-600 font-bold">{new Date(msg.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <p className="text-zinc-200 text-sm leading-relaxed mb-6">{msg.content}</p>
+                    {!msg.is_read && (
+                      <button 
+                        onClick={() => markMessageAsRead(msg.id)}
+                        className="text-[10px] font-black text-white hover:text-yellow-400 transition-colors uppercase tracking-[0.2em]"
+                      >
+                        {t('markAsRead')}
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {messages.length === 0 && (
+                  <div className="text-center py-20 text-zinc-500 font-bold uppercase tracking-widest text-xs">{t('noMessages')}</div>
                 )}
               </div>
               
-              <h2 className="text-2xl font-bold text-white mb-2">{t('updateAvatar') || 'Update Avatar'}</h2>
-              <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-8">{t('uploadSquareImage') || 'Upload a square image'}</p>
-              
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleAvatarUpload} 
-                accept="image/*" 
-                className="hidden" 
-              />
-              
-              <div className="flex flex-col gap-3 w-full">
-                <button 
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingAvatar}
-                  className="w-full py-4 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-zinc-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {uploadingAvatar ? (t('uploading') || 'Uploading...') : (t('selectImage') || 'Select Image')}
-                </button>
-                <button 
-                  onClick={() => setShowAvatarModal(false)}
-                  disabled={uploadingAvatar}
-                  className="w-full py-4 bg-transparent border border-zinc-800 rounded-2xl text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white hover:border-zinc-700 transition-all"
-                >
-                  {t('cancel') || 'Cancel'}
-                </button>
-              </div>
-           </div>
-        </div>
-      )}
+              <button 
+                onClick={() => setShowMessagesModal(false)}
+                className="mt-8 w-full py-4 bg-zinc-800 border border-zinc-700 text-zinc-400 font-bold rounded-2xl flex items-center justify-center gap-2 hover:text-white hover:border-zinc-600 transition-all uppercase tracking-widest text-xs"
+              >
+                {t('close')}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showSendMessageModal.show && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4"
+          >
+             <motion.div 
+               initial={{ scale: 0.9, y: 20 }}
+               animate={{ scale: 1, y: 0 }}
+               exit={{ scale: 0.9, y: 20 }}
+               className="liquid-glass w-full max-w-xl rounded-[2.5rem] p-10 shadow-2xl relative"
+             >
+                <h2 className="text-2xl font-bold text-white mb-2 italic">{t('sendDirectMessage')}</h2>
+                <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-8">{t('recipient')}: <span className="text-yellow-400">{showSendMessageModal.recipientName}</span></p>
+                
+                <textarea 
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl p-6 text-white focus:outline-none focus:border-yellow-400 transition-all font-medium h-48 resize-none mb-8"
+                  placeholder={t('typeMessage')}
+                  value={newMessageContent}
+                  onChange={(e) => setNewMessageContent(e.target.value)}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <button 
+                    onClick={() => setShowSendMessageModal({show: false, recipientId: '', recipientName: ''})}
+                    className="py-4 bg-transparent border border-zinc-800 rounded-2xl text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white hover:border-zinc-700 transition-all"
+                  >
+                    {t('cancel')}
+                  </button>
+                  <button 
+                    onClick={() => sendMessage(showSendMessageModal.recipientId, newMessageContent)}
+                    className="py-4 bg-yellow-400 text-black rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-yellow-300 transition-all"
+                  >
+                    {t('sendMessage')}
+                  </button>
+                </div>
+             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Avatar Upload Modal */}
+      <AnimatePresence>
+        {showAvatarModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center p-4"
+          >
+             <motion.div 
+               initial={{ scale: 0.9, y: 20 }}
+               animate={{ scale: 1, y: 0 }}
+               exit={{ scale: 0.9, y: 20 }}
+               transition={{ duration: 0.3 }}
+               className="liquid-glass w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl relative flex flex-col items-center text-center"
+             >
+                <div className="w-24 h-24 rounded-3xl bg-zinc-800 flex items-center justify-center font-black text-4xl text-yellow-400 border-2 border-dashed border-zinc-700 mb-6 overflow-hidden">
+                  {currentUser?.avatar?.startsWith('http') ? (
+                    <img src={currentUser.avatar} alt="Current Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{currentUser?.avatar || 'U'}</span>
+                  )}
+                </div>
+                
+                <h2 className="text-2xl font-bold text-white mb-2">{t('updateAvatar') || 'Update Avatar'}</h2>
+                <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest mb-8">{t('uploadSquareImage') || 'Upload a square image'}</p>
+                
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleAvatarUpload} 
+                  accept="image/*" 
+                  className="hidden" 
+                />
+                
+                <div className="flex flex-col gap-3 w-full">
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                    className="w-full py-4 bg-white text-black rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-zinc-200 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {uploadingAvatar ? (t('uploading') || 'Uploading...') : (t('selectImage') || 'Select Image')}
+                  </button>
+                  <button 
+                    onClick={() => setShowAvatarModal(false)}
+                    disabled={uploadingAvatar}
+                    className="w-full py-4 bg-transparent border border-zinc-800 rounded-2xl text-[10px] font-bold text-zinc-500 uppercase tracking-widest hover:text-white hover:border-zinc-700 transition-all"
+                  >
+                    {t('cancel') || 'Cancel'}
+                  </button>
+                </div>
+             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
